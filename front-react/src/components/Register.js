@@ -8,6 +8,7 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("user");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,7 +18,11 @@ const Register = () => {
       return;
     }
     try {
-      await register(username, password);
+      // Garantir que o objeto esteja estruturado corretamente
+      const userData = { username, password, role };
+      console.log("Dados sendo enviados para registro:", userData);
+
+      await register(userData); // Enviar o objeto corretamente
       toast.success(
         "Usuário registrado com sucesso! Faça login para continuar."
       );
@@ -56,7 +61,7 @@ const Register = () => {
               autoComplete="new-password"
             />
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-gray-700">Confirmar Senha:</label>
             <input
               type="password"
@@ -65,6 +70,16 @@ const Register = () => {
               className="w-full mt-2 p-3 border border-gray-300 rounded-md"
               autoComplete="new-password"
             />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700">Função:</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full mt-2 p-3 border border-gray-300 rounded-md">
+              <option value="user">Usuário</option>
+              <option value="admin">Administrador</option>
+            </select>
           </div>
           <button
             type="submit"

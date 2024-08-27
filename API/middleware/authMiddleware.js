@@ -1,17 +1,27 @@
-const jwt = require('jsonwebtoken');
+// middleware/authMiddleware.js
+const jwt = require("jsonwebtoken");
+const Usuario = require("../models/Usuario");
 
-exports.proteger = (req, res, next) => {
-  const token = req.headers.authorization;
+exports.proteger = async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
   if (!token) {
-    return res.status(401).send('Não autorizado');
+    return res.status(401).send("Não autorizado, token não encontrado");
   }
 
   try {
-    const decodificado = jwt.verify(token, process.env.JWT_SECRET);
-    req.usuario = decodificado;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await Usuario.findById(decoded.id).select("-password");
     next();
   } catch (err) {
-    res.status(401).send('Token inválido');
+    console.error("Erro ao verificar token:", err);
+    res.status(401).send("Token inválido");
   }
 };

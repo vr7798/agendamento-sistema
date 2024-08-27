@@ -11,13 +11,11 @@ import "react-toastify/dist/ReactToastify.css"; // Importando o CSS
 import Login from "./components/Login";
 import SecretPage from "./components/SecretPage";
 import Register from "./components/Register";
+import Dashboard from "./components/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  const [token, setToken] = useState(null);
-
-  const ProtectedRoute = ({ children }) => {
-    return token ? children : <Navigate to="/login" />;
-  };
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   return (
     <Router>
@@ -26,13 +24,29 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route
+            path="/dashboard"
+            element={
+              token ? (
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
           <Route path="/register" element={<Register />} />
           <Route
             path="/secreta"
             element={
-              <ProtectedRoute>
-                <SecretPage />
-              </ProtectedRoute>
+              token ? (
+                <ProtectedRoute>
+                  <SecretPage />
+                </ProtectedRoute>
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
         </Routes>
