@@ -22,30 +22,44 @@ const Login = ({ setToken }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Usuário: </label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          autoComplete="username"
-        />
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700">Usuário:</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              autoComplete="username"
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700">Senha:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              autoComplete="current-password"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition-colors">
+            Login
+          </button>
+        </form>
+        <p className="mt-6 text-center">
+          Não tem uma conta?{" "}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Registre-se aqui
+          </Link>
+        </p>
       </div>
-      <div>
-        <label>Senha: </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-        />
-      </div>
-      <button type="submit">Login</button>
-      <p>
-        Não tem uma conta? <Link to="/register">Registre-se aqui</Link>
-      </p>
-    </form>
+    </div>
   );
 };
 

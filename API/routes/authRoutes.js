@@ -4,10 +4,22 @@ const { registrar, login } = require("../controllers/authController");
 
 const router = express.Router();
 
-// Rota para registrar um novo usuário
-router.post("/registrar", registrar);
+router.post(
+  "/registrar",
+  (req, res, next) => {
+    console.log("Rota de registro acessada");
+    next();
+  },
+  registrar
+);
 
-// Rota para login de usuário existente
-router.post("/login", login);
+router.post(
+  "/login",
+  (req, res, next) => {
+    console.log("Rota de login acessada");
+    next();
+  },
+  login
+);
 
 module.exports = router;
