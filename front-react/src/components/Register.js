@@ -18,21 +18,13 @@ const Register = () => {
       return;
     }
     try {
-      // Garantir que o objeto esteja estruturado corretamente
-      const userData = { username, password, role };
-      console.log("Dados sendo enviados para registro:", userData);
-
-      await register(userData); // Enviar o objeto corretamente
+      await register({ username, password, role });
       toast.success(
         "Usuário registrado com sucesso! Faça login para continuar."
       );
       navigate("/login");
     } catch (err) {
-      if (err.response && err.response.status === 400) {
-        toast.error("Usuário já existe!");
-      } else {
-        toast.error("Erro ao registrar usuário. Tente novamente.");
-      }
+      // A mensagem de erro é exibida pelo toast.error no `register` do `api.js`
     }
   };
 

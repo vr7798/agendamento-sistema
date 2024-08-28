@@ -1,5 +1,5 @@
 // src/components/Login.js
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api";
 import { toast } from "react-toastify";
@@ -7,40 +7,19 @@ import { toast } from "react-toastify";
 const Login = ({ setToken }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(null); // Estado para armazenar a função do usuário
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const userInfo = JSON.parse(atob(token.split(".")[1]));
-      setRole(userInfo.role);
-    }
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await login(username, password);
       const { token } = response.data;
-
-      // Decodificar o token JWT para obter as informações do usuário (como role)
-      const userInfo = JSON.parse(atob(token.split(".")[1]));
-
       setToken(token);
       localStorage.setItem("token", token);
-      setRole(userInfo.role);
-
       toast.success("Login realizado com sucesso!");
-
-      // Redirecionar para o Dashboard se o usuário for admin, ou para uma página padrão
-      if (userInfo.role === "admin") {
-        navigate("/dashboard");
-      } else {
-        navigate("/secreta"); // Para o usuário comum, redirecione para uma página padrão
-      }
+      navigate("/dashboard"); // Redireciona para o Dashboard após o login bem-sucedido
     } catch (err) {
-      toast.error("Credenciais inválidas!");
+      // A mensagem de erro já é exibida pelo toast.error no `login` do `api.js`
     }
   };
 
@@ -75,13 +54,6 @@ const Login = ({ setToken }) => {
             Login
           </button>
         </form>
-        {role === "admin" && (
-          <div className="mt-6 text-center">
-            <Link to="/dashboard" className="text-blue-500 hover:underline">
-              Acessar Dashboard
-            </Link>
-          </div>
-        )}
         <p className="mt-6 text-center">
           Não tem uma conta?{" "}
           <Link to="/register" className="text-blue-500 hover:underline">
