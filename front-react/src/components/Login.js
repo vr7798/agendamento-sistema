@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api";
 import { toast } from "react-toastify";
 
-const Login = ({ setToken }) => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -14,12 +14,11 @@ const Login = ({ setToken }) => {
     try {
       const response = await login(username, password);
       const { token } = response.data;
-      setToken(token);
-      localStorage.setItem("token", token);
+      localStorage.setItem("token", token); // Certifique-se de que o token está sendo salvo corretamente
       toast.success("Login realizado com sucesso!");
       navigate("/dashboard"); // Redireciona para o Dashboard após o login bem-sucedido
     } catch (err) {
-      // A mensagem de erro já é exibida pelo toast.error no `login` do `api.js`
+      toast.error("Credenciais inválidas. Tente novamente.");
     }
   };
 

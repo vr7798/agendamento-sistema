@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // Certifique-se de importar corretamente o jwt-decode
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const token = localStorage.getItem("token");
@@ -9,16 +10,22 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/login" />;
   }
 
-  // Decodificar o token JWT para verificar a função do usuário
-  const userInfo = JSON.parse(atob(token.split(".")[1]));
+  try {
+    // Decodificar o token JWT para verificar a função do usuário
+    const userInfo = jwtDecode(token);
 
-  // Se a rota for somente para admin e o usuário não for admin, redireciona para o Dashboard
-  if (adminOnly && userInfo.role !== "admin") {
-    return <Navigate to="/dashboard" />;
+    // Se a rota for somente para admin e o usuário não for admin, redireciona para o Dashboard
+    if (adminOnly && userInfo.role !== "admin") {
+      return <Navigate to="/dashboard" />;
+    }
+
+    // Se passar todas as verificações, renderiza o componente filho
+    return children;
+  } catch (error) {
+    // Caso o token seja inválido ou não decodificável, redireciona para login
+    localStorage.removeItem("token");
+    return <Navigate to="/login" />;
   }
-
-  // Se passar todas as verificações, renderiza o componente filho
-  return children;
 };
 
 export default ProtectedRoute;
