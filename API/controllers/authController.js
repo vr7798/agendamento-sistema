@@ -40,12 +40,10 @@ exports.registrar = async (req, res) => {
     res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (err) {
     console.error("Erro ao registrar usuário:", err);
-    res
-      .status(500)
-      .json({
-        message: "Erro no servidor ao tentar registrar",
-        error: err.message,
-      });
+    res.status(500).json({
+      message: "Erro no servidor ao tentar registrar",
+      error: err.message,
+    });
   }
 };
 
@@ -83,4 +81,18 @@ exports.login = async (req, res) => {
       error: err.message,
     });
   }
+};
+
+// controllers/authController.js
+
+// Função para verificar o papel (role) do usuário
+exports.verificarRole = (rolesPermitidos) => {
+  return (req, res, next) => {
+    const { role } = req.user; // Supondo que req.user já tenha sido populado pelo middleware de autenticação
+    if (rolesPermitidos.includes(role)) {
+      return next();
+    } else {
+      return res.status(403).json({ message: "Acesso negado." });
+    }
+  };
 };

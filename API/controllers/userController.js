@@ -11,6 +11,17 @@ exports.listarUsuarios = async (req, res) => {
     res.status(500).send("Erro no servidor");
   }
 };
+// Verificar o papel (role) do usuário
+exports.verificarRole = (rolesPermitidos) => {
+  return (req, res, next) => {
+    const { role } = req.user; // Supondo que você tenha o papel do usuário no objeto req.user
+    if (rolesPermitidos.includes(role)) {
+      return next();
+    } else {
+      return res.status(403).json({ message: "Acesso negado." });
+    }
+  };
+};
 
 // Atualizar usuário
 exports.atualizarUsuario = async (req, res) => {

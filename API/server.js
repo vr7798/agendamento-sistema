@@ -1,9 +1,10 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const conectarDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const agendamentoRoutes = require("./routes/agendamentoRoutes"); // Importação das rotas de agendamento
+const userRoutes = require("./routes/userRoutes"); // Importação das rotas de usuários
 const { proteger } = require("./middleware/authMiddleware");
 
 dotenv.config();
@@ -11,7 +12,10 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 app.use("/api/auth", authRoutes);
+app.use("/api/agendamentos", agendamentoRoutes); // Adição das rotas de agendamento
+app.use("/api/users", userRoutes); // Adição das rotas de usuários
 
 app.get("/api/segredo", proteger, (req, res) => {
   res.send("Esta é uma página secreta");
