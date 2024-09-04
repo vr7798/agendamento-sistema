@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import moment from "moment";
 // Criação de uma instância Axios com base na URL base definida em variáveis de ambiente
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -135,6 +135,35 @@ export const getAgendamentosHoje = async () => {
   } catch (error) {
     console.error("Erro ao buscar agendamentos de hoje:", error);
     toast.error("Erro ao buscar agendamentos.");
+    throw error;
+  }
+};
+
+// Função para buscar agendamentos gerais com filtros de data e clínica
+export const getAgendamentosGerais = async (data, clinica) => {
+  try {
+    const params = {};
+
+    // Formata a data corretamente antes de enviar, caso exista
+    if (data) {
+      const dataFormatada = moment(data).format("YYYY-MM-DD"); // Formata a data para garantir que está no formato correto
+      params.data = dataFormatada;
+    }
+
+    // Adiciona a clínica aos parâmetros de consulta, se fornecida
+    if (clinica) {
+      params.clinica = clinica;
+    }
+
+    // Realiza a requisição GET com os parâmetros de consulta
+    const response = await api.get("/api/agendamentos", { params });
+
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : "Erro ao buscar agendamentos gerais. Tente novamente.";
+    toast.error(errorMessage);
     throw error;
   }
 };

@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
-import { getPerfil, getAgendamentosHoje } from "../api"; // Funções da API
+import { getPerfil, getAgendamentosHoje, getAgendamentosGerais } from "../api";
 import { toast } from "react-toastify";
-import { ClipboardIcon, ChatIcon } from "@heroicons/react/outline"; // Ícones
-import moment from "moment-timezone"; // Importa moment-timezone
+import {
+  ClipboardIcon,
+  ChatIcon,
+  FilterIcon,
+  RefreshIcon,
+} from "@heroicons/react/outline";
+import moment from "moment-timezone";
 
 const Dashboard = () => {
   const [user, setUser] = useState({});
   const [agendamentosHoje, setAgendamentosHoje] = useState([]);
+  const [agendamentosGerais, setAgendamentosGerais] = useState([]);
+  const [dataFiltro, setDataFiltro] = useState("");
+  const [clinicaFiltro, setClinicaFiltro] = useState("");
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -19,43 +27,98 @@ const Dashboard = () => {
       }
     };
 
-    const carregarAgendamentos = async () => {
+    const carregarAgendamentosHoje = async () => {
       try {
         const agendamentos = await getAgendamentosHoje();
         setAgendamentosHoje(agendamentos);
       } catch (error) {
-        toast.error("Erro ao carregar agendamentos");
+        toast.error("Erro ao carregar agendamentos de hoje");
       }
     };
 
     carregarPerfil();
-    carregarAgendamentos();
+    carregarAgendamentosHoje();
   }, []);
 
-  const copiarMensagem = (nome, horario, dia, local, observacao) => {
-    const diaFormatado = moment(dia)
+  const copiarMensagem = (nome, horario, dia, local) => {
+    const mensagem = `_*${nome}*_, seu agendamento foi confirmado para o dia _*${moment(
+      dia
+    )
       .tz("America/Sao_Paulo")
-      .format("DD/MM/YYYY");
-    const mensagem = `Olá ${nome}, seu agendamento foi confirmado para o dia ${diaFormatado} às ${horario} na clínica ${local}. Observação: ${observacao}. Qualquer dúvida, estamos à disposição!`;
-    navigator.clipboard.writeText(mensagem);
-    toast.success("Mensagem copiada para o WhatsApp!");
+      .format(
+        "DD/MM/YYYY"
+      )}*_ às _*${horario}* na clínica *${local}*_. Qualquer dúvida, estamos à disposição!`;
+
+    // Verifica se o navegador suporta clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(mensagem)
+        .then(() => {
+          toast.success("Mensagem copiada para o WhatsApp!");
+        })
+        .catch((err) => {
+          toast.error("Erro ao copiar a mensagem");
+          console.error("Erro ao copiar: ", err);
+        });
+    } else {
+      // Cria um textarea temporário para seleção manual
+      const textarea = document.createElement("textarea");
+      textarea.value = mensagem;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        toast.success("Mensagem copiada para o WhatsApp!");
+      } catch (err) {
+        toast.error("Erro ao copiar a mensagem");
+        console.error("Erro ao copiar: ", err);
+      }
+      document.body.removeChild(textarea);
+    }
+  };
+
+  const filtrarAgendamentos = async () => {
+    try {
+      const agendamentos = await getAgendamentosGerais(
+        dataFiltro,
+        clinicaFiltro
+      );
+      setAgendamentosGerais(agendamentos);
+    } catch (error) {
+      toast.error("Erro ao carregar agendamentos filtrados");
+    }
+  };
+
+  const limparFiltro = () => {
+    setDataFiltro("");
+    setClinicaFiltro("");
+    filtrarAgendamentos();
+  };
+
+  const buscarTodosAgendamentos = async () => {
+    try {
+      const agendamentos = await getAgendamentosGerais();
+      setAgendamentosGerais(agendamentos);
+    } catch (error) {
+      toast.error("Erro ao carregar todos os agendamentos");
+    }
   };
 
   return (
     <div className="bg-gray-100 min-h-screen">
       <Navbar />
       <div className="pt-20 p-6 overflow-y-auto">
-        <header className="mb-4 flex justify-between items-center">
+        <header className="mb-6 flex justify-between items-center">
           <h1 className="text-3xl font-semibold text-gray-800">
             Bem-vindo, {user.username}
           </h1>
           <p className="text-gray-500">
-            Último acesso:{" "}
-            {moment().tz("America/Sao_Paulo").format("DD/MM/YYYY")}
+            Último acesso: {moment().format("DD/MM/YYYY")}
           </p>
         </header>
 
-        <section className="bg-white shadow-lg rounded-md p-6">
+        {/* Agendamentos de Hoje */}
+        <section className="bg-white shadow-lg rounded-md p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
             Agendamentos de Hoje
           </h2>
@@ -65,42 +128,38 @@ const Dashboard = () => {
             agendamentosHoje.map((agendamento) => (
               <div
                 key={agendamento._id}
-                className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm space-y-4 lg:space-y-0 lg:space-x-4">
-                <div className="w-full lg:w-1/2">
+                className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm">
+                <div>
                   <p className="text-lg font-semibold text-gray-700">
                     {agendamento.nome} {agendamento.sobrenome}
                   </p>
                   <p className="text-gray-600">
-                    <strong>Horário:</strong> {agendamento.horario}
+                    Horário: {agendamento.horario}
                   </p>
                   <p className="text-gray-600">
-                    <strong>Data:</strong>{" "}
+                    Data:
                     {moment(agendamento.dia)
                       .tz("America/Sao_Paulo")
                       .format("DD/MM/YYYY")}
                   </p>
+                  <p className="text-gray-600">Local: {agendamento.local}</p>
                   <p className="text-gray-600">
-                    <strong>Local:</strong> {agendamento.local}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Observações:</strong>{" "}
-                    {agendamento.observacao || "Nenhuma"}
+                    Observação: {agendamento.observacao || "N/A"}
                   </p>
                 </div>
-                <div className="w-full lg:w-1/2 flex flex-col lg:flex-row lg:justify-end space-y-3 lg:space-y-0 lg:space-x-3">
+                <div className="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:space-x-3">
                   <button
                     onClick={() =>
                       copiarMensagem(
                         agendamento.nome,
                         agendamento.horario,
                         agendamento.dia,
-                        agendamento.local,
-                        agendamento.observacao
+                        agendamento.local
                       )
                     }
-                    className="bg-green-500 text-white py-2 px-4 rounded-lg flex items-center hover:bg-green-600 transition-colors justify-center">
+                    className="bg-green-500 text-white py-2 px-4 rounded-lg flex items-center hover:bg-green-600 transition-colors shadow-md">
                     <ChatIcon className="w-5 h-5 mr-2" />
-                    Copiar Mensagem
+                    WhatsApp
                   </button>
                   <button
                     onClick={() =>
@@ -108,14 +167,81 @@ const Dashboard = () => {
                         agendamento.nome,
                         agendamento.horario,
                         agendamento.dia,
-                        agendamento.local,
-                        agendamento.observacao
+                        agendamento.local
                       )
                     }
-                    className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center hover:bg-blue-600 transition-colors justify-center">
+                    className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center hover:bg-blue-600 transition-colors shadow-md">
                     <ClipboardIcon className="w-5 h-5 mr-2" />
-                    Copiar para Clipboard
+                    Clipboard
                   </button>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+
+        {/* Filtros para Agendamentos Gerais */}
+        <section className="bg-white shadow-lg rounded-md p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            Agendamentos Gerais
+          </h2>
+          <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mb-4">
+            <input
+              type="date"
+              value={dataFiltro}
+              onChange={(e) => setDataFiltro(e.target.value)}
+              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
+              placeholder="Filtrar por data"
+            />
+            <input
+              type="text"
+              value={clinicaFiltro}
+              onChange={(e) => setClinicaFiltro(e.target.value)}
+              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
+              placeholder="Filtrar por clínica"
+            />
+            <button
+              onClick={filtrarAgendamentos}
+              className="bg-blue-500 text-white py-3 px-6 rounded-md flex items-center hover:bg-blue-600 transition-colors">
+              <FilterIcon className="w-5 h-5 mr-2" />
+              Filtrar
+            </button>
+            <button
+              onClick={limparFiltro}
+              className="bg-gray-400 text-white py-3 px-6 rounded-md flex items-center hover:bg-gray-500 transition-colors">
+              <RefreshIcon className="w-5 h-5 mr-2" />
+              Limpar Filtro
+            </button>
+            <button
+              onClick={buscarTodosAgendamentos}
+              className="bg-green-500 text-white py-3 px-6 rounded-md flex items-center hover:bg-green-600 transition-colors">
+              <ClipboardIcon className="w-5 h-5 mr-2" />
+              Buscar Todos
+            </button>
+          </div>
+
+          {/* Lista de Agendamentos Gerais */}
+          {agendamentosGerais.length === 0 ? (
+            <p className="text-gray-600">Nenhum agendamento encontrado.</p>
+          ) : (
+            agendamentosGerais.map((agendamento) => (
+              <div
+                key={agendamento._id}
+                className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm">
+                <div>
+                  <p className="text-lg font-semibold text-gray-700">
+                    {agendamento.nome} {agendamento.sobrenome}
+                  </p>
+                  <p className="text-gray-600">
+                    Horário: {agendamento.horario}
+                  </p>
+                  <p className="text-gray-600">
+                    Data: {moment(agendamento.dia).format("DD/MM/YYYY")}
+                  </p>
+                  <p className="text-gray-600">Local: {agendamento.local}</p>
+                  <p className="text-gray-600">
+                    Observação: {agendamento.observacao || "N/A"}
+                  </p>
                 </div>
               </div>
             ))
