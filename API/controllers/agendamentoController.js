@@ -1,6 +1,6 @@
 const Agendamento = require("../models/Agendamento");
 
-// Controlador para criar um agendamento
+// Criar um agendamento
 exports.criarAgendamento = async (req, res) => {
   try {
     const { nome, sobrenome, numero, horario, dia, local, observacao } =
@@ -21,7 +21,6 @@ exports.criarAgendamento = async (req, res) => {
       local,
       observacao,
     });
-
     const agendamentoSalvo = await novoAgendamento.save();
     res.status(201).json({
       message: "Agendamento criado com sucesso",
@@ -32,7 +31,7 @@ exports.criarAgendamento = async (req, res) => {
   }
 };
 
-// Controlador para listar todos os agendamentos
+// Listar todos os agendamentos
 exports.listarAgendamentos = async (req, res) => {
   try {
     const agendamentos = await Agendamento.find();
@@ -42,24 +41,30 @@ exports.listarAgendamentos = async (req, res) => {
   }
 };
 
-// Controlador para excluir um agendamento
-exports.excluirAgendamento = async (req, res) => {
-  const { id } = req.params;
-
+exports.listarAgendamentosHoje = async (req, res) => {
   try {
-    const agendamento = await Agendamento.findByIdAndDelete(id);
-    if (!agendamento) {
-      return res.status(404).send("Agendamento não encontrado");
-    }
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0); // Reseta as horas para o início do dia
 
-    res.status(200).send("Agendamento excluído com sucesso");
-  } catch (err) {
-    console.error("Erro ao excluir agendamento:", err);
-    res.status(500).send("Erro no servidor");
+    const amanha = new Date(hoje);
+    amanha.setDate(hoje.getDate() + 1); // Define o limite para o fim do dia (amanhã)
+
+    const agendamentosHoje = await Agendamento.find({
+      dia: {
+        $gte: hoje, // Maior ou igual a hoje
+        $lt: amanha, // Menor que amanhã
+      },
+    });
+
+    res.status(200).json(agendamentosHoje);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Erro ao buscar agendamentos de hoje", error });
   }
 };
 
-// Controlador para atualizar um agendamento
+// Atualizar um agendamento
 exports.atualizarAgendamento = async (req, res) => {
   const { id } = req.params;
   const { nome, sobrenome, numero, horario, dia, local, observacao } = req.body;
@@ -75,12 +80,26 @@ exports.atualizarAgendamento = async (req, res) => {
       return res.status(404).send("Agendamento não encontrado");
     }
 
-    res.status(200).json({
-      message: "Agendamento atualizado com sucesso",
-      agendamento,
-    });
+    res
+      .status(200)
+      .json({ message: "Agendamento atualizado com sucesso", agendamento });
   } catch (err) {
-    console.error("Erro ao atualizar agendamento:", err);
+    res.status(500).send("Erro no servidor");
+  }
+};
+
+// Excluir um agendamento
+exports.excluirAgendamento = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const agendamento = await Agendamento.findByIdAndDelete(id);
+    if (!agendamento) {
+      return res.status(404).send("Agendamento não encontrado");
+    }
+
+    res.status(200).send("Agendamento excluído com sucesso");
+  } catch (err) {
     res.status(500).send("Erro no servidor");
   }
 };
