@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import moment from "moment-timezone"; // Importa o moment-timezone
 import { toast } from "react-toastify";
 import Navbar from "./Navbar"; // Importa o Navbar
 
@@ -154,7 +155,10 @@ const AdminPanel = () => {
                         {agendamento.numero}
                       </td>
                       <td className="py-2 px-3 border-b">
-                        {new Date(agendamento.dia).toLocaleDateString()}
+                        {moment(agendamento.dia)
+                          .tz("America/Sao_Paulo")
+                          .format("DD/MM/YYYY")}{" "}
+                        {/* Ajusta o fuso horário para São Paulo */}
                       </td>
                       <td className="py-2 px-3 border-b text-center">
                         <button

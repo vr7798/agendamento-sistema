@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import InputMask from "react-input-mask";
 import { criarAgendamento } from "../api"; // Importando a função para criar agendamento
 import { toast } from "react-toastify"; // Importando o toast para notificações
-
+import moment from "moment"; // Importando Moment.js
 const AgendamentoForm = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -76,7 +76,15 @@ const AgendamentoForm = () => {
     e.preventDefault();
     if (validate()) {
       try {
-        await criarAgendamento(formData);
+        // Converta a data para o formato ISO usando Moment.js
+        const dataISO = moment(formData.dia).format("YYYY-MM-DD");
+
+        const agendamentoData = {
+          ...formData,
+          dia: dataISO, // Substitui o campo "dia" com a versão formatada pelo Moment.js
+        };
+
+        await criarAgendamento(agendamentoData);
         toast.success("Agendamento salvo com sucesso!");
         setFormData({
           nome: "",
