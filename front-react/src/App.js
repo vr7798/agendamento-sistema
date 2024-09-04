@@ -13,41 +13,58 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import AdminPanel from "./components/AdminPanel"; // Importar o AdminPanel
+import Perfil from "./components/Perfil"; // Importar o componente Perfil
+import Footer from "./components/Footer"; // Importar o componente Footer
 
 function App() {
   return (
     <Router>
-      <div>
+      <div className="flex flex-col min-h-screen">
+        {" "}
+        {/* Flex container para manter o footer no final */}
         <ToastContainer />
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/adicionar-agendamento"
-            element={
-              <ProtectedRoute>
-                <AdicionarAgendamento />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-panel"
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <AdminPanel /> {/* Renderiza o AdminPanel */}
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <div className="flex-grow">
+          {" "}
+          {/* Permite que o conteúdo cresça e empurre o footer para o final */}
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/adicionar-agendamento"
+              element={
+                <ProtectedRoute>
+                  <AdicionarAgendamento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-panel"
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminPanel /> {/* Renderiza o AdminPanel */}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/perfil"
+              element={
+                <ProtectedRoute>
+                  <Perfil /> {/* Renderiza o componente Perfil */}
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+        <Footer /> {/* Inclui o Footer no final */}
       </div>
     </Router>
   );

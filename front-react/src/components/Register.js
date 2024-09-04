@@ -1,4 +1,3 @@
-// src/components/Register.js
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { register } from "../api";
@@ -8,6 +7,7 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [numeroTelefone, setNumeroTelefone] = useState(""); // Novo estado para o número de telefone
   const [role, setRole] = useState("user");
   const navigate = useNavigate();
 
@@ -17,8 +17,14 @@ const Register = () => {
       toast.error("As senhas não coincidem!");
       return;
     }
+
+    if (!numeroTelefone) {
+      toast.error("O número de telefone é obrigatório!");
+      return;
+    }
+
     try {
-      await register({ username, password, role });
+      await register({ username, password, numeroTelefone, role }); // Enviando o número de telefone para a API
       toast.success(
         "Usuário registrado com sucesso! Faça login para continuar."
       );
@@ -41,6 +47,17 @@ const Register = () => {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full mt-2 p-3 border border-gray-300 rounded-md"
               autoComplete="username"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Número de Telefone:</label>
+            <input
+              type="tel"
+              value={numeroTelefone}
+              onChange={(e) => setNumeroTelefone(e.target.value)}
+              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              placeholder="Digite seu número de telefone"
+              required
             />
           </div>
           <div className="mb-4">

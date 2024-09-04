@@ -1,19 +1,20 @@
-// src/components/Navbar.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // Correção no import
 import {
   MenuIcon,
   XIcon,
   HomeIcon,
   CogIcon,
   CalendarIcon,
+  UserIcon, // Ícone do usuário
 } from "@heroicons/react/outline";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userRole, setUserRole] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,10 +63,16 @@ const Navbar = () => {
                 Painel Administrativo
               </Link>
             )}
+            <Link
+              to="/perfil"
+              className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center">
+              <UserIcon className="w-5 h-5 mr-2" />
+              Meu Perfil
+            </Link>
             <button
               onClick={handleLogout}
               className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors">
-              Logout
+              Sair
             </button>
           </div>
           <div className="-mr-2 flex md:hidden">
@@ -103,10 +110,15 @@ const Navbar = () => {
               Painel Administrativo
             </Link>
           )}
+          <Link
+            to="/perfil"
+            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+            Meu Perfil
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors mt-2">
-            Logout
+            Sair
           </button>
         </div>
       </div>
