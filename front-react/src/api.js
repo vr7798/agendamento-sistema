@@ -127,3 +127,14 @@ export const getPerfil = async () => {
     throw error;
   }
 };
+
+export const getAgendamentosHoje = async () => {
+  try {
+    const response = await api.get("/api/agendamentos/hoje");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar agendamentos de hoje:", error);
+    toast.error("Erro ao buscar agendamentos.");
+    throw error;
+  }
+};

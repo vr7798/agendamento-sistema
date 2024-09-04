@@ -68,69 +68,75 @@ const Perfil = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       {/* Inclui a Navbar no topo */}
       <Navbar />
 
-      <div className="max-w-md mx-auto mt-10">
-        <h2 className="text-2xl font-bold mb-5">Meu Perfil</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Nome de Usuário
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-              placeholder="Nome de usuário"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Número de Telefone
-            </label>
-            <input
-              type="tel"
-              value={numeroTelefone}
-              onChange={(e) => setNumeroTelefone(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-              placeholder="Número de telefone"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Senha Atual (se for alterar a senha)
-            </label>
-            <input
-              type="password"
-              value={senhaAtual}
-              onChange={(e) => setSenhaAtual(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-              placeholder="Senha atual"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Nova Senha (opcional)
-            </label>
-            <input
-              type="password"
-              value={novaSenha}
-              onChange={(e) => setNovaSenha(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-              placeholder="Nova senha"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
-            Atualizar Perfil
-          </button>
-        </form>
+      <div className="flex justify-center items-center pt-20">
+        <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg border border-gray-200">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+            Meu Perfil
+          </h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-5">
+              <label className="block text-gray-700 text-sm font-semibold mb-2">
+                Nome de Usuário
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                placeholder="Nome de usuário"
+                required
+              />
+            </div>
+            <div className="mb-5">
+              <label className="block text-gray-700 text-sm font-semibold mb-2">
+                Número de Telefone
+              </label>
+              <input
+                type="tel"
+                value={numeroTelefone}
+                onChange={(e) => setNumeroTelefone(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                placeholder="Número de telefone"
+                required
+              />
+            </div>
+            <div className="mb-5">
+              <label className="block text-gray-700 text-sm font-semibold mb-2">
+                Senha Atual (se for alterar a senha)
+              </label>
+              <input
+                type="password"
+                value={senhaAtual}
+                onChange={(e) => setSenhaAtual(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                placeholder="Senha atual"
+              />
+            </div>
+            <div className="mb-5">
+              <label className="block text-gray-700 text-sm font-semibold mb-2">
+                Nova Senha (opcional)
+              </label>
+              <input
+                type="password"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                placeholder="Nova senha"
+              />
+            </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-lg">
+                Atualizar Perfil
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

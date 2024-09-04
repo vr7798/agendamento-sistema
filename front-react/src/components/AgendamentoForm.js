@@ -109,7 +109,7 @@ const AgendamentoForm = () => {
               name="nome"
               value={formData.nome}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite o nome..."
             />
             {errors.nome && (
@@ -121,17 +121,19 @@ const AgendamentoForm = () => {
               name="sobrenome"
               value={formData.sobrenome}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite o sobrenome..."
             />
             {errors.sobrenome && (
               <p className="text-red-500 text-sm">{errors.sobrenome}</p>
             )}
-            <button
-              onClick={nextStep}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-              Próximo
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                Próximo
+              </button>
+            </div>
           </div>
         );
       case 2:
@@ -145,22 +147,24 @@ const AgendamentoForm = () => {
               name="numero"
               value={formData.numero}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite o número..."
             />
             {errors.numero && (
               <p className="text-red-500 text-sm">{errors.numero}</p>
             )}
-            <button
-              onClick={prevStep}
-              className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition-colors mr-2">
-              Anterior
-            </button>
-            <button
-              onClick={nextStep}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-              Próximo
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={prevStep}
+                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-colors shadow-md">
+                Anterior
+              </button>
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                Próximo
+              </button>
+            </div>
           </div>
         );
       case 3:
@@ -172,21 +176,23 @@ const AgendamentoForm = () => {
               name="horario"
               value={formData.horario}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.horario && (
               <p className="text-red-500 text-sm">{errors.horario}</p>
             )}
-            <button
-              onClick={prevStep}
-              className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition-colors mr-2">
-              Anterior
-            </button>
-            <button
-              onClick={nextStep}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-              Próximo
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={prevStep}
+                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-colors shadow-md">
+                Anterior
+              </button>
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                Próximo
+              </button>
+            </div>
           </div>
         );
       case 4:
@@ -198,19 +204,21 @@ const AgendamentoForm = () => {
               name="dia"
               value={formData.dia}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.dia && <p className="text-red-500 text-sm">{errors.dia}</p>}
-            <button
-              onClick={prevStep}
-              className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition-colors mr-2">
-              Anterior
-            </button>
-            <button
-              onClick={nextStep}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-              Próximo
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={prevStep}
+                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-colors shadow-md">
+                Anterior
+              </button>
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                Próximo
+              </button>
+            </div>
           </div>
         );
       case 5:
@@ -221,7 +229,7 @@ const AgendamentoForm = () => {
               name="local"
               value={formData.local}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md">
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">Selecione a clínica</option>
               <option value="Dra. Iara Negreiros">Dra. Iara Negreiros</option>
               <option value="Dr. João">Dr. João</option>
@@ -231,16 +239,18 @@ const AgendamentoForm = () => {
             {errors.local && (
               <p className="text-red-500 text-sm">{errors.local}</p>
             )}
-            <button
-              onClick={prevStep}
-              className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition-colors mr-2">
-              Anterior
-            </button>
-            <button
-              onClick={nextStep}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-              Próximo
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={prevStep}
+                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-colors shadow-md">
+                Anterior
+              </button>
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                Próximo
+              </button>
+            </div>
           </div>
         );
       case 6:
@@ -251,18 +261,20 @@ const AgendamentoForm = () => {
               name="observacao"
               value={formData.observacao}
               onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+              className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite alguma observação..."></textarea>
-            <button
-              onClick={prevStep}
-              className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition-colors mr-2">
-              Anterior
-            </button>
-            <button
-              onClick={nextStep}
-              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-              Próximo
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={prevStep}
+                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-colors shadow-md">
+                Anterior
+              </button>
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                Próximo
+              </button>
+            </div>
           </div>
         );
       case 7:
@@ -289,16 +301,18 @@ const AgendamentoForm = () => {
             <p>
               <strong>Observação:</strong> {formData.observacao}
             </p>
-            <button
-              onClick={prevStep}
-              className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition-colors mr-2">
-              Anterior
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
-              Salvar Agendamento
-            </button>
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={prevStep}
+                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-colors shadow-md">
+                Anterior
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                Salvar Agendamento
+              </button>
+            </div>
           </div>
         );
       default:
@@ -307,8 +321,8 @@ const AgendamentoForm = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Agendamento</h2>
+    <div className="bg-white p-10 rounded-lg shadow-md max-w-xl mx-auto mt-10 border border-gray-200">
+      <h2 className="text-3xl font-semibold mb-6 text-gray-800">Agendamento</h2>
       <form onSubmit={handleSubmit}>{renderStep()}</form>
     </div>
   );

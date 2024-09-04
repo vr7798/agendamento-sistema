@@ -6,13 +6,18 @@ const AdicionarAgendamento = () => {
   return (
     <div className="bg-gray-100 min-h-screen">
       <Navbar />
-      <div className="pt-20 p-6 overflow-y-auto">
-        <header className="mb-4">
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Adicionar Agendamento
-          </h1>
-        </header>
-        <AgendamentoForm />
+      <div className="pt-20 p-6 overflow-y-auto flex justify-center items-center">
+        <div className="w-full max-w-4xl">
+          <header className="mb-6">
+            <h1 className="text-4xl font-bold text-gray-800 text-center">
+              Adicionar Agendamento
+            </h1>
+            <p className="text-center text-gray-500">
+              Preencha os campos abaixo para agendar sua consulta
+            </p>
+          </header>
+          <AgendamentoForm />
+        </div>
       </div>
     </div>
   );
