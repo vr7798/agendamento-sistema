@@ -1,6 +1,6 @@
 const Agendamento = require("../models/Agendamento");
+const moment = require("moment-timezone");
 
-// Criar um agendamento
 exports.criarAgendamento = async (req, res) => {
   try {
     const { nome, sobrenome, numero, horario, dia, local, observacao } =
@@ -12,15 +12,22 @@ exports.criarAgendamento = async (req, res) => {
       });
     }
 
+    // Usando Moment.js para ajustar a data para o fuso horário correto
+    const dataAgendamento = moment
+      .tz(dia, "America/Sao_Paulo")
+      .startOf("day")
+      .toDate();
+
     const novoAgendamento = new Agendamento({
       nome,
       sobrenome,
       numero,
       horario,
-      dia,
+      dia: dataAgendamento, // Salva a data ajustada
       local,
       observacao,
     });
+
     const agendamentoSalvo = await novoAgendamento.save();
     res.status(201).json({
       message: "Agendamento criado com sucesso",
@@ -43,27 +50,21 @@ exports.listarAgendamentos = async (req, res) => {
 
 exports.listarAgendamentosHoje = async (req, res) => {
   try {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0); // Reseta as horas para o início do dia
-
-    const amanha = new Date(hoje);
-    amanha.setDate(hoje.getDate() + 1); // Define o limite para o fim do dia (amanhã)
+    const hoje = moment.tz("America/Sao_Paulo").startOf("day"); // Definindo o início do dia no fuso horário correto
+    const amanha = moment(hoje).add(1, "days");
 
     const agendamentosHoje = await Agendamento.find({
       dia: {
-        $gte: hoje, // Maior ou igual a hoje
-        $lt: amanha, // Menor que amanhã
+        $gte: hoje.toDate(),
+        $lt: amanha.toDate(),
       },
     });
 
     res.status(200).json(agendamentosHoje);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Erro ao buscar agendamentos de hoje", error });
+    res.status(500).json({ message: "Erro ao buscar agendamentos", error });
   }
 };
-
 // Atualizar um agendamento
 exports.atualizarAgendamento = async (req, res) => {
   const { id } = req.params;
