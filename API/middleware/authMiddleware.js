@@ -1,4 +1,3 @@
-// middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 
@@ -13,7 +12,9 @@ exports.proteger = async (req, res, next) => {
   }
 
   if (!token) {
-    return res.status(401).send("Não autorizado, token não encontrado");
+    return res
+      .status(401)
+      .json({ message: "Não autorizado, token não encontrado" });
   }
 
   try {
@@ -22,6 +23,6 @@ exports.proteger = async (req, res, next) => {
     next();
   } catch (err) {
     console.error("Erro ao verificar token:", err);
-    res.status(401).send("Token inválido");
+    res.status(401).json({ message: "Token inválido" });
   }
 };

@@ -5,37 +5,31 @@ const jwt = require("jsonwebtoken");
 
 exports.registrar = async (req, res) => {
   try {
-    console.log("Rota de registro acessada");
-    console.log("Recebido no backend:", req.body);
+    console.log("Recebido para registro:", req.body);
 
-    const { username, password, role } = req.body;
-    console.log("Recebido para registro:", { username, password, role });
+    const { username, password, numeroTelefone, role } = req.body;
 
-    if (
-      typeof username !== "string" ||
-      typeof password !== "string" ||
-      typeof role !== "string"
-    ) {
-      console.error("Formato de dados inválido:", req.body);
-      return res.status(400).json({ message: "Formato de dados inválido" });
+    if (!username || !password || !numeroTelefone || !role) {
+      return res
+        .status(400)
+        .json({ message: "Todos os campos são obrigatórios" });
     }
 
     const usuarioExistente = await Usuario.findOne({ username });
     if (usuarioExistente) {
-      console.log("Usuário já existe:", username);
       return res.status(400).json({ message: "Usuário já existe" });
     }
 
     const senhaCriptografada = await bcrypt.hash(password, 10);
-    console.log("Senha criptografada:", senhaCriptografada);
 
     const usuario = new Usuario({
       username,
       password: senhaCriptografada,
+      numeroTelefone, // Adicionando o número de telefone no banco de dados
       role,
     });
+
     await usuario.save();
-    console.log("Usuário registrado com sucesso:", usuario);
 
     res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (err) {

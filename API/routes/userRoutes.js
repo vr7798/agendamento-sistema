@@ -1,18 +1,22 @@
-// routes/userRoutes.js
 const express = require("express");
 const {
   listarUsuarios,
   atualizarUsuario,
   excluirUsuario,
+  getPerfil,
+  atualizarPerfil,
 } = require("../controllers/userController");
 const { proteger } = require("../middleware/authMiddleware");
-const { verificarRole } = require("../controllers/authController"); // Importação correta
 
 const router = express.Router();
 
-// Rotas protegidas para gerenciamento de usuários
-router.get("/", proteger, verificarRole(["admin"]), listarUsuarios);
-router.put("/:id", proteger, verificarRole(["admin"]), atualizarUsuario);
-router.delete("/:id", proteger, verificarRole(["admin"]), excluirUsuario);
+// Rota para o perfil do usuário autenticado
+router.get("/me", proteger, getPerfil);
+router.put("/me", proteger, atualizarPerfil); // Certifique-se de que essa rota existe
+
+// Rotas para administrar outros usuários
+router.get("/", proteger, listarUsuarios);
+router.put("/:id", proteger, atualizarUsuario); // Aqui, o ID é tratado como ObjectId
+router.delete("/:id", proteger, excluirUsuario);
 
 module.exports = router;

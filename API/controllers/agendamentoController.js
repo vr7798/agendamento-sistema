@@ -41,6 +41,8 @@ exports.listarAgendamentos = async (req, res) => {
     res.status(500).json({ message: "Erro ao listar agendamentos", error });
   }
 };
+
+// Controlador para excluir um agendamento
 exports.excluirAgendamento = async (req, res) => {
   const { id } = req.params;
 
@@ -53,6 +55,32 @@ exports.excluirAgendamento = async (req, res) => {
     res.status(200).send("Agendamento excluído com sucesso");
   } catch (err) {
     console.error("Erro ao excluir agendamento:", err);
+    res.status(500).send("Erro no servidor");
+  }
+};
+
+// Controlador para atualizar um agendamento
+exports.atualizarAgendamento = async (req, res) => {
+  const { id } = req.params;
+  const { nome, sobrenome, numero, horario, dia, local, observacao } = req.body;
+
+  try {
+    const agendamento = await Agendamento.findByIdAndUpdate(
+      id,
+      { nome, sobrenome, numero, horario, dia, local, observacao },
+      { new: true }
+    );
+
+    if (!agendamento) {
+      return res.status(404).send("Agendamento não encontrado");
+    }
+
+    res.status(200).json({
+      message: "Agendamento atualizado com sucesso",
+      agendamento,
+    });
+  } catch (err) {
+    console.error("Erro ao atualizar agendamento:", err);
     res.status(500).send("Erro no servidor");
   }
 };
