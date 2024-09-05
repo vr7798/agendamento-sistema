@@ -49,7 +49,6 @@ const Dashboard = () => {
         "DD/MM/YYYY"
       )}*_ às _*${horario}* na clínica *${local}*_. Qualquer dúvida, estamos à disposição!`;
 
-    // Verifica se o navegador suporta clipboard API
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
         .writeText(mensagem)
@@ -61,7 +60,6 @@ const Dashboard = () => {
           console.error("Erro ao copiar: ", err);
         });
     } else {
-      // Cria um textarea temporário para seleção manual
       const textarea = document.createElement("textarea");
       textarea.value = mensagem;
       document.body.appendChild(textarea);
@@ -193,13 +191,16 @@ const Dashboard = () => {
               className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
               placeholder="Filtrar por data"
             />
-            <input
-              type="text"
+            <select
               value={clinicaFiltro}
               onChange={(e) => setClinicaFiltro(e.target.value)}
-              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
-              placeholder="Filtrar por clínica"
-            />
+              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md">
+              <option value="">Todas as clínicas</option>
+              <option value="Dra. Iara Negreiros">Dra. Iara Negreiros</option>
+              <option value="Dr. João">Dr. João</option>
+              <option value="Dr. Marcelo">Dr. Marcelo</option>
+              <option value="Dr. Joselito">Dr. Joselito</option>
+            </select>
             <button
               onClick={filtrarAgendamentos}
               className="bg-blue-500 text-white py-3 px-6 rounded-md flex items-center hover:bg-blue-600 transition-colors">
@@ -242,6 +243,34 @@ const Dashboard = () => {
                   <p className="text-gray-600">
                     Observação: {agendamento.observacao || "N/A"}
                   </p>
+                </div>
+                <div className="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:space-x-3">
+                  <button
+                    onClick={() =>
+                      copiarMensagem(
+                        agendamento.nome,
+                        agendamento.horario,
+                        agendamento.dia,
+                        agendamento.local
+                      )
+                    }
+                    className="bg-green-500 text-white py-2 px-4 rounded-lg flex items-center hover:bg-green-600 transition-colors shadow-md">
+                    <ChatIcon className="w-5 h-5 mr-2" />
+                    WhatsApp
+                  </button>
+                  <button
+                    onClick={() =>
+                      copiarMensagem(
+                        agendamento.nome,
+                        agendamento.horario,
+                        agendamento.dia,
+                        agendamento.local
+                      )
+                    }
+                    className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center hover:bg-blue-600 transition-colors shadow-md">
+                    <ClipboardIcon className="w-5 h-5 mr-2" />
+                    Clipboard
+                  </button>
                 </div>
               </div>
             ))
