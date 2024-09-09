@@ -11,6 +11,15 @@ router.get("/", proteger, agendamentoController.listarAgendamentos);
 
 // Rota para listar agendamentos de hoje
 router.get("/hoje", proteger, agendamentoController.listarAgendamentosHoje);
+// Rota para listar agendamentos filtrados por médico e data
+router.get(
+  "/filtrados",
+  proteger,
+  agendamentoController.listarAgendamentosFiltrados
+);
+
+// Rota para listar médicos (valores únicos do campo "local")
+router.get("/medicos", proteger, agendamentoController.listarMedicos);
 
 // Rota para atualizar um agendamento
 router.put("/:id", proteger, agendamentoController.atualizarAgendamento);
