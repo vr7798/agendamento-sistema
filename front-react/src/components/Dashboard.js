@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
-import { getPerfil, getAgendamentosHoje, getAgendamentosGerais } from "../api";
+import {
+  getPerfil,
+  getAgendamentosHoje,
+  getAgendamentosFiltrados,
+  getMedicos,
+} from "../api"; // Adicionei getMedicos
 import { toast } from "react-toastify";
 import {
   ClipboardIcon,
@@ -15,7 +20,8 @@ const Dashboard = () => {
   const [agendamentosHoje, setAgendamentosHoje] = useState([]);
   const [agendamentosGerais, setAgendamentosGerais] = useState([]);
   const [dataFiltro, setDataFiltro] = useState("");
-  const [clinicaFiltro, setClinicaFiltro] = useState("");
+  const [medicoFiltro, setMedicoFiltro] = useState("");
+  const [medicos, setMedicos] = useState([]); // Estado para armazenar a lista de médicos
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -36,8 +42,18 @@ const Dashboard = () => {
       }
     };
 
+    const carregarMedicos = async () => {
+      try {
+        const listaMedicos = await getMedicos(); // Nova função para buscar médicos
+        setMedicos(listaMedicos); // Preenche o estado com a lista de médicos
+      } catch (error) {
+        toast.error("Erro ao carregar lista de médicos");
+      }
+    };
+
     carregarPerfil();
     carregarAgendamentosHoje();
+    carregarMedicos(); // Chama a função para carregar médicos
   }, []);
 
   const copiarMensagem = (nome, horario, dia, local) => {
@@ -77,29 +93,32 @@ const Dashboard = () => {
 
   const filtrarAgendamentos = async () => {
     try {
-      const agendamentos = await getAgendamentosGerais(
+      // Verificar se não há nenhum filtro aplicado
+      if (!dataFiltro && !medicoFiltro) {
+        toast.error("Por favor, aplique algum filtro antes de buscar.");
+        setAgendamentosGerais([]); // Limpar a lista de agendamentos gerais
+        return; // Sai da função se não houver filtros
+      }
+
+      console.log("Filtros aplicados:", { dataFiltro, medicoFiltro }); // Log para verificar os filtros
+
+      const agendamentos = await getAgendamentosFiltrados(
         dataFiltro,
-        clinicaFiltro
+        medicoFiltro
       );
-      setAgendamentosGerais(agendamentos);
+      console.log("Agendamentos filtrados:", agendamentos); // Verificar o retorno
+
+      setAgendamentosGerais(agendamentos); // Atualizar a lista de agendamentos filtrados
     } catch (error) {
-      toast.error("Erro ao carregar agendamentos filtrados");
+      toast.error("Erro ao carregar agendamentos filtrados.");
     }
   };
 
   const limparFiltro = () => {
+    // Limpar os valores dos filtros
     setDataFiltro("");
-    setClinicaFiltro("");
-    filtrarAgendamentos();
-  };
-
-  const buscarTodosAgendamentos = async () => {
-    try {
-      const agendamentos = await getAgendamentosGerais();
-      setAgendamentosGerais(agendamentos);
-    } catch (error) {
-      toast.error("Erro ao carregar todos os agendamentos");
-    }
+    setMedicoFiltro("");
+    setAgendamentosGerais([]); // Limpar a lista de agendamentos ao limpar o filtro
   };
 
   return (
@@ -111,19 +130,53 @@ const Dashboard = () => {
             Bem-vindo, {user.username}
           </h1>
           <p className="text-gray-500">
-            Último acesso: {moment().format("DD/MM/YYYY")}
+            Último acesso: {moment().format("DD/MM/YYYY [às] HH:mm")}
           </p>
         </header>
 
-        {/* Agendamentos de Hoje */}
+        {/* Filtros e Agendamentos Gerais */}
         <section className="bg-white shadow-lg rounded-md p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            Agendamentos de Hoje
+            Agendamentos Gerais
           </h2>
-          {agendamentosHoje.length === 0 ? (
-            <p className="text-gray-600">Nenhum agendamento para hoje.</p>
+          <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mb-4">
+            <input
+              type="date"
+              value={dataFiltro}
+              onChange={(e) => setDataFiltro(e.target.value)}
+              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
+              placeholder="Filtrar por data"
+            />
+            <select
+              value={medicoFiltro}
+              onChange={(e) => setMedicoFiltro(e.target.value)}
+              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md">
+              <option value="">Todos os médicos</option>
+              {medicos.map((medico, index) => (
+                <option key={index} value={medico}>
+                  {medico}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={filtrarAgendamentos}
+              className="bg-blue-500 text-white py-3 px-6 rounded-md flex items-center hover:bg-blue-600 transition-colors">
+              <FilterIcon className="w-5 h-5 mr-2" />
+              Filtrar
+            </button>
+            <button
+              onClick={limparFiltro}
+              className="bg-gray-400 text-white py-3 px-6 rounded-md flex items-center hover:bg-gray-500 transition-colors">
+              <RefreshIcon className="w-5 h-5 mr-2" />
+              Limpar Filtro
+            </button>
+          </div>
+
+          {/* Lista de Agendamentos Gerais */}
+          {agendamentosGerais.length === 0 ? (
+            <p className="text-gray-600">Nenhum agendamento encontrado.</p>
           ) : (
-            agendamentosHoje.map((agendamento) => (
+            agendamentosGerais.map((agendamento) => (
               <div
                 key={agendamento._id}
                 className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm">
@@ -135,10 +188,7 @@ const Dashboard = () => {
                     Horário: {agendamento.horario}
                   </p>
                   <p className="text-gray-600">
-                    Data:
-                    {moment(agendamento.dia)
-                      .tz("America/Sao_Paulo")
-                      .format("DD/MM/YYYY")}
+                    Data: {moment(agendamento.dia).format("DD/MM/YYYY")}
                   </p>
                   <p className="text-gray-600">Local: {agendamento.local}</p>
                   <p className="text-gray-600">
@@ -178,54 +228,15 @@ const Dashboard = () => {
           )}
         </section>
 
-        {/* Filtros para Agendamentos Gerais */}
+        {/* Agendamentos de Hoje */}
         <section className="bg-white shadow-lg rounded-md p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            Agendamentos Gerais
+            Agendamentos de Hoje
           </h2>
-          <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mb-4">
-            <input
-              type="date"
-              value={dataFiltro}
-              onChange={(e) => setDataFiltro(e.target.value)}
-              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
-              placeholder="Filtrar por data"
-            />
-            <select
-              value={clinicaFiltro}
-              onChange={(e) => setClinicaFiltro(e.target.value)}
-              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md">
-              <option value="">Todas as clínicas</option>
-              <option value="Dra. Iara Negreiros">Dra. Iara Negreiros</option>
-              <option value="Dr. João">Dr. João</option>
-              <option value="Dr. Marcelo">Dr. Marcelo</option>
-              <option value="Dr. Joselito">Dr. Joselito</option>
-            </select>
-            <button
-              onClick={filtrarAgendamentos}
-              className="bg-blue-500 text-white py-3 px-6 rounded-md flex items-center hover:bg-blue-600 transition-colors">
-              <FilterIcon className="w-5 h-5 mr-2" />
-              Filtrar
-            </button>
-            <button
-              onClick={limparFiltro}
-              className="bg-gray-400 text-white py-3 px-6 rounded-md flex items-center hover:bg-gray-500 transition-colors">
-              <RefreshIcon className="w-5 h-5 mr-2" />
-              Limpar Filtro
-            </button>
-            <button
-              onClick={buscarTodosAgendamentos}
-              className="bg-green-500 text-white py-3 px-6 rounded-md flex items-center hover:bg-green-600 transition-colors">
-              <ClipboardIcon className="w-5 h-5 mr-2" />
-              Buscar Todos
-            </button>
-          </div>
-
-          {/* Lista de Agendamentos Gerais */}
-          {agendamentosGerais.length === 0 ? (
-            <p className="text-gray-600">Nenhum agendamento encontrado.</p>
+          {agendamentosHoje.length === 0 ? (
+            <p className="text-gray-600">Nenhum agendamento para hoje.</p>
           ) : (
-            agendamentosGerais.map((agendamento) => (
+            agendamentosHoje.map((agendamento) => (
               <div
                 key={agendamento._id}
                 className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm">
@@ -237,7 +248,10 @@ const Dashboard = () => {
                     Horário: {agendamento.horario}
                   </p>
                   <p className="text-gray-600">
-                    Data: {moment(agendamento.dia).format("DD/MM/YYYY")}
+                    Data:
+                    {moment(agendamento.dia)
+                      .tz("America/Sao_Paulo")
+                      .format("DD/MM/YYYY")}
                   </p>
                   <p className="text-gray-600">Local: {agendamento.local}</p>
                   <p className="text-gray-600">

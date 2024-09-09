@@ -139,31 +139,34 @@ export const getAgendamentosHoje = async () => {
   }
 };
 
-// Função para buscar agendamentos gerais com filtros de data e clínica
-export const getAgendamentosGerais = async (data, clinica) => {
+export const getAgendamentosFiltrados = async (data, medico) => {
   try {
     const params = {};
 
-    // Formata a data corretamente antes de enviar, caso exista
+    // Adicionar filtro de data se houver
     if (data) {
-      const dataFormatada = moment(data).format("YYYY-MM-DD"); // Formata a data para garantir que está no formato correto
+      const dataFormatada = moment(data).format("YYYY-MM-DD");
       params.data = dataFormatada;
     }
 
-    // Adiciona a clínica aos parâmetros de consulta, se fornecida
-    if (clinica) {
-      params.clinica = clinica;
+    // Adicionar filtro de médico se houver
+    if (medico) {
+      params.medico = medico; // Passar o médico como parâmetro
     }
 
-    // Realiza a requisição GET com os parâmetros de consulta
-    const response = await api.get("/api/agendamentos", { params });
-
+    const response = await api.get("/api/agendamentos/filtrados", { params });
     return response.data;
   } catch (error) {
-    const errorMessage = error.response
-      ? error.response.data.message
-      : "Erro ao buscar agendamentos gerais. Tente novamente.";
-    toast.error(errorMessage);
-    throw error;
+    throw new Error("Erro ao buscar agendamentos filtrados.");
+  }
+};
+
+// Função para buscar a lista de médicos
+export const getMedicos = async () => {
+  try {
+    const response = await api.get("/api/agendamentos/medicos");
+    return response.data;
+  } catch (error) {
+    throw new Error("Erro ao buscar lista de médicos");
   }
 };
