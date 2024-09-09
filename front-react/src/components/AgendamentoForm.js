@@ -239,14 +239,22 @@ const AgendamentoForm = () => {
               onChange={handleChange}
               className="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">Selecione a clínica</option>
-              <option value="Dra. Iara Negreiros">Dra. Iara Negreiros</option>
-              <option value="Dr. João">Dr. João</option>
-              <option value="Dr. Marcelo">Dr. Marcelo</option>
-              <option value="Dr. Joselito">Dr. Joselito</option>
+              <option value="Dra. Iara Negreiros - Av. São Sebastião, 1176 - Tancredo Neves">
+                Dra. Iara Negreiros - Av. São Sebastião, 1176 - Tancredo Neves
+              </option>
+              <option value="Dr. Joselito - Clínica Saúde & Vida - Av. Ville Roy, 5623 - Centro">
+                Dr. Joselito - Clínica Saúde & Vida - Av. Ville Roy, 5623 -
+                Centro
+              </option>
+              <option value="Dra. Imery Sampaio - Av. Maj. Williams, 2067 - Centro">
+                Dra. Imery Sampaio - Av. Maj. Williams, 2067 - Centro
+              </option>
             </select>
+
             {errors.local && (
               <p className="text-red-500 text-sm">{errors.local}</p>
             )}
+
             <div className="flex justify-between mt-6">
               <button
                 onClick={prevStep}

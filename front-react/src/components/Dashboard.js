@@ -182,13 +182,17 @@ const Dashboard = () => {
                 className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm">
                 <div>
                   <p className="text-lg font-semibold text-gray-700">
-                    {agendamento.nome} {agendamento.sobrenome}
+                    Nome: {agendamento.nome} {agendamento.sobrenome}
                   </p>
+                  <p className="text-gray-600">Número: {agendamento.numero}</p>
                   <p className="text-gray-600">
                     Horário: {agendamento.horario}
                   </p>
                   <p className="text-gray-600">
-                    Data: {moment(agendamento.dia).format("DD/MM/YYYY")}
+                    Data:{" "}
+                    {moment(agendamento.dia)
+                      .tz("America/Sao_Paulo")
+                      .format("DD/MM/YYYY")}
                   </p>
                   <p className="text-gray-600">Local: {agendamento.local}</p>
                   <p className="text-gray-600">
@@ -242,8 +246,9 @@ const Dashboard = () => {
                 className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row justify-between items-start lg:items-center bg-gray-50 p-4 mb-3 rounded-lg shadow-sm">
                 <div>
                   <p className="text-lg font-semibold text-gray-700">
-                    {agendamento.nome} {agendamento.sobrenome}
+                    Nome: {agendamento.nome} {agendamento.sobrenome}
                   </p>
+                  <p className="text-gray-600">Número: {agendamento.numero}</p>
                   <p className="text-gray-600">
                     Horário: {agendamento.horario}
                   </p>
