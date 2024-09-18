@@ -1,10 +1,10 @@
 const Agendamento = require("../models/Agendamento");
 const moment = require("moment-timezone");
 
+// Criar um novo agendamento
 exports.criarAgendamento = async (req, res) => {
   try {
-    const { nome, sobrenome, numero, horario, dia, local, observacao } =
-      req.body;
+    const { nome, sobrenome, numero, horario, dia, local, observacao } = req.body;
 
     if (!nome || !sobrenome || !numero || !horario || !dia || !local) {
       return res.status(400).json({
@@ -12,7 +12,7 @@ exports.criarAgendamento = async (req, res) => {
       });
     }
 
-    // Usando Moment.js para ajustar a data para o fuso horário correto
+    // Ajustar a data para o fuso horário correto
     const dataAgendamento = moment
       .tz(dia, "America/Sao_Paulo")
       .startOf("day")
@@ -38,45 +38,7 @@ exports.criarAgendamento = async (req, res) => {
   }
 };
 
-// Listar todos os agendamentos
-exports.listarAgendamentos = async (req, res) => {
-  try {
-    const agendamentos = await Agendamento.find();
-    res.status(200).json(agendamentos);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao listar agendamentos", error });
-  }
-};
-
-exports.listarAgendamentosHoje = async (req, res) => {
-  try {
-    const hoje = moment.tz("America/Sao_Paulo").startOf("day"); // Definindo o início do dia no fuso horário correto
-    const amanha = moment(hoje).add(1, "days");
-
-    const agendamentosHoje = await Agendamento.find({
-      dia: {
-        $gte: hoje.toDate(),
-        $lt: amanha.toDate(),
-      },
-    });
-
-    res.status(200).json(agendamentosHoje);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar agendamentos", error });
-  }
-};
-exports.listarTodosAgendamentos = async (req, res) => {
-  try {
-    // Busca todos os agendamentos sem nenhum filtro
-    const todosAgendamentos = await Agendamento.find();
-
-    res.status(200).json(todosAgendamentos);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar agendamentos", error });
-  }
-};
-
-// Atualizar um agendamento
+// Atualizar um agendamento existente
 exports.atualizarAgendamento = async (req, res) => {
   const { id } = req.params;
   const { nome, sobrenome, numero, horario, dia, local, observacao } = req.body;
@@ -92,13 +54,13 @@ exports.atualizarAgendamento = async (req, res) => {
       return res.status(404).send("Agendamento não encontrado");
     }
 
-    res
-      .status(200)
-      .json({ message: "Agendamento atualizado com sucesso", agendamento });
+    res.status(200).json({ message: "Agendamento atualizado com sucesso", agendamento });
   } catch (err) {
     res.status(500).send("Erro no servidor");
   }
 };
+
+// Listar agendamentos filtrados
 exports.listarAgendamentosFiltrados = async (req, res) => {
   try {
     const { dataInicio, dataFim, local } = req.query;
@@ -133,7 +95,6 @@ exports.listarAgendamentosFiltrados = async (req, res) => {
   }
 };
 
-
 // Excluir um agendamento
 exports.excluirAgendamento = async (req, res) => {
   const { id } = req.params;
@@ -149,15 +110,23 @@ exports.excluirAgendamento = async (req, res) => {
     res.status(500).send("Erro no servidor");
   }
 };
-// Listar médicos únicos (a partir do campo "local")
-exports.listarMedicos = async (req, res) => {
-  try {
-    // Buscar os valores únicos do campo "local" (que é o médico)
-    const medicos = await Agendamento.distinct("local");
 
-    // Retornar a lista de médicos
-    res.status(200).json(medicos);
+
+// Listar todos os agendamentos
+exports.listarTodosAgendamentos = async (req, res) => {
+  try {
+    const agendamentos = await Agendamento.find();
+    res.status(200).json(agendamentos);
   } catch (error) {
-    res.status(500).json({ message: "Erro ao listar médicos", error });
+    res.status(500).json({ message: "Erro ao listar todos os agendamentos", error });
+  }
+};
+// Listar todos os agendamentos
+exports.listarAgendamentos = async (req, res) => {
+  try {
+    const agendamentos = await Agendamento.find();
+    res.status(200).json(agendamentos);
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao listar agendamentos", error });
   }
 };

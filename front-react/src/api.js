@@ -94,16 +94,6 @@ export const getPerfil = async () => {
   }
 };
 
-// Função para buscar todos os agendamentos
-export const getAgendamentosTodos = async () => {
-  try {
-    const response = await api.get("/api/agendamentos/todos");
-    return response.data;
-  } catch (error) {
-    toast.error("Erro ao buscar agendamentos.");
-    throw error;
-  }
-};
 
 export const getAgendamentosFiltrados = async (dataInicio, dataFim, local) => {
   try {
@@ -126,13 +116,14 @@ export const getAgendamentosFiltrados = async (dataInicio, dataFim, local) => {
   }
 };
 
-// Função para buscar a lista de médicos
-export const getMedicos = async () => {
+
+// Função para buscar todos os agendamentos
+export const getAgendamentosTodos = async () => {
   try {
-    const response = await api.get("/api/agendamentos/medicos");
+    const response = await api.get("/api/agendamentos/todos");
     return response.data;
   } catch (error) {
-    toast.error("Erro ao buscar lista de médicos");
+    toast.error("Erro ao buscar agendamentos.");
     throw error;
   }
 };

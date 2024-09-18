@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
-import {
-  getPerfil,
-  getAgendamentosFiltrados,
- 
-} from "../api";
+import { getPerfil, getAgendamentosFiltrados, getAgendamentosTodos } from "../api";
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
 
@@ -13,8 +9,9 @@ const Dashboard = () => {
   const [agendamentosGerais, setAgendamentosGerais] = useState([]);
   const [dataFiltroInicio, setDataFiltroInicio] = useState("");
   const [dataFiltroFim, setDataFiltroFim] = useState("");
-  const [localFiltro, setLocalFiltro] = useState(""); // Mudança aqui
-  const [locais, setLocais] = useState([]); // Mudança aqui
+  const [localFiltro, setLocalFiltro] = useState("");
+  const [periodoFiltro, setPeriodoFiltro] = useState("");
+  const [locais, setLocais] = useState([]);
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -34,8 +31,18 @@ const Dashboard = () => {
       ]);
     };
 
+    const carregarAgendamentos = async () => {
+      try {
+        const agendamentos = await getAgendamentosTodos();
+        setAgendamentosGerais(agendamentos);
+      } catch (error) {
+        toast.error("Erro ao carregar agendamentos.");
+      }
+    };
+
     carregarPerfil();
     carregarLocais();
+    carregarAgendamentos();
   }, []);
 
   const ajustarDatasPorPeriodo = (periodo) => {
@@ -85,6 +92,7 @@ const Dashboard = () => {
     }
     setDataFiltroInicio(inicio);
     setDataFiltroFim(fim);
+    setPeriodoFiltro(periodo);
   };
 
   const copiarMensagem = (nome, horario, dia, local) => {
@@ -94,7 +102,7 @@ const Dashboard = () => {
       .tz("America/Sao_Paulo")
       .format(
         "DD/MM/YYYY"
-      )}*_ às _*${horario}* na clínica *${local}*_. Qualquer dúvida, estamos à disposição!`;
+      )}*_ às _*${horario}*_ na clínica *${local}*_. Qualquer dúvida, estamos à disposição!`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
@@ -124,33 +132,37 @@ const Dashboard = () => {
 
   const filtrarAgendamentos = async () => {
     try {
-      if (!dataFiltroInicio || !dataFiltroFim || !localFiltro) {
-        toast.error("Por favor, aplique algum filtro antes de buscar.");
-        setAgendamentosGerais([]);
+      if (!dataFiltroInicio && !dataFiltroFim && !localFiltro) {
+        toast.error("Por favor, aplique pelo menos um filtro antes de buscar.");
         return;
       }
 
-      console.log("Filtros aplicados:", { dataFiltroInicio, dataFiltroFim, localFiltro });
-
       const agendamentos = await getAgendamentosFiltrados(
-        dataFiltroInicio,
-        dataFiltroFim,
-        localFiltro
+        dataFiltroInicio || "",
+        dataFiltroFim || "",
+        localFiltro || ""
       );
-      console.log("Agendamentos filtrados:", agendamentos);
-
       setAgendamentosGerais(agendamentos);
     } catch (error) {
       toast.error("Erro ao carregar agendamentos filtrados.");
     }
   };
 
-  const limparFiltro = () => {
+  const limparFiltro = async () => {
     setDataFiltroInicio("");
     setDataFiltroFim("");
     setLocalFiltro("");
-    setAgendamentosGerais([]);
+    setPeriodoFiltro("");
+    
+    // Recarregar todos os agendamentos
+    try {
+      const agendamentos = await getAgendamentosTodos();
+      setAgendamentosGerais(agendamentos);
+    } catch (error) {
+      toast.error("Erro ao carregar agendamentos.");
+    }
   };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -171,6 +183,7 @@ const Dashboard = () => {
           </h2>
           <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mb-4">
             <select
+              value={periodoFiltro}
               onChange={(e) => ajustarDatasPorPeriodo(e.target.value)}
               className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
             >
@@ -244,7 +257,7 @@ const Dashboard = () => {
                           agendamento.local
                         )
                       }
-                      className="mt-2 bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+                      className="bg-blue-500 text-white p-2 mt-2 rounded-md hover:bg-blue-600"
                     >
                       Copiar mensagem
                     </button>
@@ -252,7 +265,7 @@ const Dashboard = () => {
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-600">Nenhum agendamento encontrado.</p>
+              <p className="text-gray-500">Nenhum agendamento encontrado.</p>
             )}
           </div>
         </section>
