@@ -97,7 +97,9 @@ exports.listarAgendamentosFiltrados = async (req, res) => {
 
     // Filtrar por nome, se fornecido
     if (nome) {
-      filtro.nome = { $regex: new RegExp(`^${nome}$`, 'i') }; // Exata correspondência de nome
+      // Adicionar espaços extras para melhorar a correspondência
+      const regex = new RegExp(nome.trim().replace(/\s+/g, ' ').replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      filtro.nome = { $regex: regex };
     }
 
     console.log("Objeto de filtro aplicado:", filtro);
@@ -111,7 +113,6 @@ exports.listarAgendamentosFiltrados = async (req, res) => {
     res.status(500).json({ message: "Erro ao listar agendamentos filtrados", error });
   }
 };
-
 
 
 
