@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [dataFiltroInicio, setDataFiltroInicio] = useState("");
   const [dataFiltroFim, setDataFiltroFim] = useState("");
   const [localFiltro, setLocalFiltro] = useState("");
+  const [nomeFiltro, setNomeFiltro] = useState(""); // Novo estado para o nome
   const [periodoFiltro, setPeriodoFiltro] = useState("");
   const [locais, setLocais] = useState([]);
 
@@ -132,26 +133,33 @@ const Dashboard = () => {
 
   const filtrarAgendamentos = async () => {
     try {
-      if (!dataFiltroInicio && !dataFiltroFim && !localFiltro) {
+      // Verifica se pelo menos um filtro foi aplicado
+      if (!dataFiltroInicio && !dataFiltroFim && !localFiltro && !nomeFiltro) {
         toast.error("Por favor, aplique pelo menos um filtro antes de buscar.");
         return;
       }
-
+  
+      // Chama a função de filtragem com os parâmetros apropriados
       const agendamentos = await getAgendamentosFiltrados(
-        dataFiltroInicio || "",
-        dataFiltroFim || "",
-        localFiltro || ""
+        dataFiltroInicio || "", // Data de início ou string vazia
+        dataFiltroFim || "",    // Data de fim ou string vazia
+        localFiltro || "",      // Local ou string vazia
+        nomeFiltro || ""        // Nome ou string vazia
       );
+  
+      // Atualiza o estado com os agendamentos filtrados
       setAgendamentosGerais(agendamentos);
     } catch (error) {
       toast.error("Erro ao carregar agendamentos filtrados.");
+      console.error("Erro ao carregar agendamentos filtrados:", error);
     }
   };
-
+  
   const limparFiltro = async () => {
     setDataFiltroInicio("");
     setDataFiltroFim("");
     setLocalFiltro("");
+    setNomeFiltro(""); // Limpa o filtro de nome
     setPeriodoFiltro("");
     
     // Recarregar todos os agendamentos
@@ -162,7 +170,6 @@ const Dashboard = () => {
       toast.error("Erro ao carregar agendamentos.");
     }
   };
-  
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -224,6 +231,13 @@ const Dashboard = () => {
                 </option>
               ))}
             </select>
+            <input
+              type="text"
+              value={nomeFiltro}
+              onChange={(e) => setNomeFiltro(e.target.value)}
+              className="w-full lg:w-auto p-3 border border-gray-300 rounded-md"
+              placeholder="Nome"
+            />
             <button
               onClick={filtrarAgendamentos}
               className="w-full lg:w-auto bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600"

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import moment from "moment-timezone"; // Importa o moment-timezone
+import moment from "moment-timezone";
 import { toast } from "react-toastify";
-import Navbar from "./Navbar"; // Importa o Navbar
+import Navbar from "./Navbar";
 
 const AdminPanel = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -82,9 +82,9 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen pt-16"> {/* Ajuste o padding-top aqui */}
       <Navbar /> {/* Inclui o Navbar */}
-      <div className="p-4 lg:p-8 pt-20">
+      <div className="p-4 lg:p-8">
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-8 text-center lg:text-left">
           Painel Administrativo
         </h1>
