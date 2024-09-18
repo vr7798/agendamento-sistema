@@ -65,6 +65,17 @@ exports.listarAgendamentosHoje = async (req, res) => {
     res.status(500).json({ message: "Erro ao buscar agendamentos", error });
   }
 };
+exports.listarTodosAgendamentos = async (req, res) => {
+  try {
+    // Busca todos os agendamentos sem nenhum filtro
+    const todosAgendamentos = await Agendamento.find();
+
+    res.status(200).json(todosAgendamentos);
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao buscar agendamentos", error });
+  }
+};
+
 // Atualizar um agendamento
 exports.atualizarAgendamento = async (req, res) => {
   const { id } = req.params;
@@ -90,37 +101,38 @@ exports.atualizarAgendamento = async (req, res) => {
 };
 exports.listarAgendamentosFiltrados = async (req, res) => {
   try {
-    const { data, medico } = req.query;
-    const filtro = {}; // Objeto para construir os filtros dinâmicos
+    const { dataInicio, dataFim, local } = req.query;
+    const filtro = {};
 
-    console.log("Filtros recebidos:", { data, medico }); // Adicione um log para verificar os parâmetros recebidos
+    console.log("Filtros recebidos:", { dataInicio, dataFim, local });
 
-    // Filtrar por data, se fornecida
-    if (data) {
-      const dataInicio = moment(data).startOf("day").toDate(); // Início do dia
-      const dataFim = moment(data).endOf("day").toDate(); // Fim do dia
-      filtro.dia = { $gte: dataInicio, $lte: dataFim }; // Filtrar entre o início e o fim do dia
+    // Ajustar o fuso horário para o horário local (UTC-3, Brasil)
+    const timezone = "America/Sao_Paulo";
+
+    // Filtrar por intervalo de datas (dataInicio e dataFim)
+    if (dataInicio && dataFim) {
+      const inicio = moment.tz(dataInicio, "YYYY-MM-DD", timezone).startOf("day").toDate();
+      const fim = moment.tz(dataFim, "YYYY-MM-DD", timezone).endOf("day").toDate();
+      filtro.dia = { $gte: inicio, $lte: fim };
     }
 
-    // Filtrar por médico (usando o campo "local"), se fornecido
-    if (medico) {
-      filtro.local = medico; // Aplicar o filtro de médico no campo "local"
+    // Filtrar por local, se fornecido
+    if (local) {
+      filtro.local = local;
     }
 
-    console.log("Objeto de filtro aplicado:", filtro); // Verifique como o filtro foi construído
+    console.log("Objeto de filtro aplicado:", filtro);
 
     // Buscar agendamentos com base nos filtros aplicados
     const agendamentos = await Agendamento.find(filtro);
     console.log("Agendamentos encontrados:", agendamentos);
 
-    // Retornar a lista de agendamentos filtrados
     res.status(200).json(agendamentos);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Erro ao listar agendamentos filtrados", error });
+    res.status(500).json({ message: "Erro ao listar agendamentos filtrados", error });
   }
 };
+
 
 // Excluir um agendamento
 exports.excluirAgendamento = async (req, res) => {
