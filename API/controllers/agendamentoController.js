@@ -162,3 +162,43 @@ exports.listarAgendamentos = async (req, res) => {
     res.status(500).json({ message: "Erro ao listar agendamentos", error });
   }
 };
+
+
+
+
+
+
+
+
+
+
+// Função para atualizar a etapa de um agendamento
+exports.atualizarEtapaAgendamento = async (req, res) => {
+  const { id } = req.params;  // ID do agendamento que será atualizado
+  const { novaEtapa } = req.body;  // A nova etapa enviada no corpo da requisição
+
+  try {
+    // Verifica se a nova etapa é válida
+    if (!["Consultou", "Ainda não consultou", "Desistiu"].includes(novaEtapa)) {
+      return res.status(400).json({ message: "Etapa inválida" });
+    }
+
+    // Atualiza a etapa do agendamento no banco de dados
+    const agendamento = await Agendamento.findByIdAndUpdate(
+      id,
+      { etapa: novaEtapa },
+      { new: true }
+    );
+
+    // Verifica se o agendamento foi encontrado
+    if (!agendamento) {
+      return res.status(404).json({ message: "Agendamento não encontrado" });
+    }
+
+    // Retorna o agendamento atualizado
+    res.status(200).json({ message: "Etapa atualizada com sucesso", agendamento });
+  } catch (error) {
+    console.error("Erro ao atualizar etapa do agendamento:", error);
+    res.status(500).json({ message: "Erro ao atualizar etapa do agendamento", error });
+  }
+};

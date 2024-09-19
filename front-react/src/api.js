@@ -164,3 +164,18 @@ export const getAgendamentosTodos = async () => {
     throw error;
   }
 };
+// Função para atualizar a etapa de um agendamento
+export const atualizarEtapaAgendamento = async (id, novaEtapa) => {
+  try {
+    console.log("Attempting to update etapa of agendamento with ID:", id, "and new etapa:", novaEtapa); // Log da atualização de etapa
+    const response = await api.put(`/api/agendamentos/${id}/etapa`, { novaEtapa });
+    toast.success("Etapa do agendamento atualizada com sucesso!");
+    console.log("Update Etapa Response:", response); // Log da resposta de atualização de etapa
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data.message || "Erro ao atualizar etapa do agendamento. Tente novamente.";
+    console.error("Update Etapa Error:", error); // Log de erro de atualização de etapa
+    toast.error(errorMessage);
+    throw error;
+  }
+};

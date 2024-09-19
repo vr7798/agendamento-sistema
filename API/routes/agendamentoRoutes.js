@@ -17,6 +17,8 @@ router.get('/filtrados', proteger, agendamentoController.listarAgendamentosFiltr
 
 // Rota para atualizar um agendamento
 router.put("/:id", proteger, agendamentoController.atualizarAgendamento);
+// Rota para atualizar a etapa de um agendamento
+router.put("/:id/etapa", proteger, agendamentoController.atualizarEtapaAgendamento);
 
 // Rota para excluir um agendamento
 router.delete("/:id", proteger, agendamentoController.excluirAgendamento);
