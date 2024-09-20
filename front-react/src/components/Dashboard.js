@@ -1,3 +1,5 @@
+// src/components/Dashboard.js
+
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import {
@@ -5,11 +7,11 @@ import {
   getAgendamentosFiltrados,
   getAgendamentosTodos,
   atualizarEtapaAgendamento,
-  adicionarOcorrencia as apiAdicionarOcorrencia, // Renomeado para evitar conflito
+  adicionarOcorrencia as apiAdicionarOcorrencia,
 } from "../api";
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
-import { FaWhatsapp, FaPhone } from "react-icons/fa"; // Importando ícones adicionais
+import { FaWhatsapp, FaPhone } from "react-icons/fa";
 
 const Dashboard = () => {
   const [user, setUser] = useState({});
@@ -23,9 +25,9 @@ const Dashboard = () => {
   });
   const [locais, setLocais] = useState([]);
   const [etapas, setEtapas] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false); // Estado para visibilidade da modal
-  const [mensagemOcorrencia, setMensagemOcorrencia] = useState(""); // Estado para a mensagem
-  const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null); // Estado para armazenar o ID do agendamento selecionado
+  const [modalVisible, setModalVisible] = useState(false);
+  const [mensagemOcorrencia, setMensagemOcorrencia] = useState("");
+  const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -64,6 +66,7 @@ const Dashboard = () => {
     carregarAgendamentos();
   }, []);
 
+  // Função para ajustar datas com base no período selecionado
   const ajustarDatasPorPeriodo = (periodo) => {
     let inicio, fim;
     const hoje = moment().startOf("day");
@@ -248,8 +251,11 @@ const Dashboard = () => {
     }
 
     try {
-      // Chamar a função API para adicionar a ocorrência
-      await apiAdicionarOcorrencia(agendamentoSelecionado, mensagemOcorrencia);
+      // Chamar a função API para adicionar a ocorrência com nomeUsuario
+      await apiAdicionarOcorrencia(agendamentoSelecionado, {
+        mensagem: mensagemOcorrencia,
+        nomeUsuario: user.username, // Adiciona o nome do usuário logado
+      });
 
       // Atualizar a lista de agendamentos para refletir a nova ocorrência
       const agendamentos = await getAgendamentosTodos();
@@ -267,11 +273,14 @@ const Dashboard = () => {
       setAgendamentoSelecionado(null);
     } catch (error) {
       // Erro já está sendo tratado na função API
+      toast.error("Erro ao adicionar ocorrência.");
       console.error("Erro ao adicionar ocorrência:", error);
     }
   };
 
-  // Componente Interno para Filtros
+  /**
+   * Definição do Componente Interno FiltroAgendamentos
+   */
   const FiltroAgendamentos = () => {
     const handleInputChange = (e) => {
       const { name, value } = e.target;
@@ -378,8 +387,12 @@ const Dashboard = () => {
     );
   };
 
-  // Componente Interno para cada Card de Agendamento
+  /**
+   * Definição do Componente Interno CardAgendamento
+   */
   const CardAgendamento = ({ agendamento, etapa, index }) => {
+    const [dropdownOpen, setDropdownOpen] = useState(false); // Estado para controlar o dropdown
+
     return (
       <li className="p-4 border border-gray-300 rounded-md bg-gray-50 relative">
         <h3 className="text-lg font-semibold text-gray-800">
@@ -422,7 +435,7 @@ const Dashboard = () => {
           <span className="text-white font-semibold text-xs">{etapa}</span>
         </div>
 
-        {/* Nova opção: Adicionar Ocorrência */}
+        {/* Botão para Adicionar Ocorrência */}
         <button
           onClick={() => abrirModalOcorrencia(agendamento._id)}
           className="mt-2 w-full bg-purple-200 text-purple-700 p-2 rounded-md hover:bg-purple-300 text-sm"
@@ -458,6 +471,33 @@ const Dashboard = () => {
         >
           <FaWhatsapp size={16} />
         </button>
+
+        {/* Botão para Toggle do Dropdown de Ocorrências */}
+        <button
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="mt-4 w-full bg-gray-200 text-gray-800 p-2 rounded-md hover:bg-gray-300 text-sm"
+        >
+          {dropdownOpen ? "Ocultar Ocorrências" : "Ver Ocorrências"}
+        </button>
+
+        {/* Renderização Condicional das Ocorrências */}
+        {dropdownOpen && (
+          <div className="mt-2 p-2 border border-gray-300 rounded-md bg-gray-100">
+            <h4 className="font-semibold mb-2">Ocorrências:</h4>
+            {agendamento.ocorrencias && agendamento.ocorrencias.length > 0 ? (
+              <ul className="list-disc list-inside">
+                {agendamento.ocorrencias.map((ocorrencia, idx) => (
+                  <li key={idx} className="text-sm text-gray-700">
+                    <span className="font-medium">{ocorrencia.nomeUsuario}:</span> {ocorrencia.mensagem} -{" "}
+                    {moment(ocorrencia.data).format("DD/MM/YYYY HH:mm")}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500">Nenhuma ocorrência registrada.</p>
+            )}
+          </div>
+        )}
       </li>
     );
   };
@@ -468,11 +508,10 @@ const Dashboard = () => {
       <div className="pt-20 p-6 overflow-y-auto">
         <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
           <h1 className="text-3xl font-semibold text-gray-800">
-            Bem-vindo, {user.username}
+            Bem-vindo, {user.username} {/* Usa 'username' em vez de 'nome' */}
           </h1>
           <p className="text-gray-500 mt-2 md:mt-0">
-            Último acesso:{" "}
-            {moment().format("DD/MM/YYYY [às] HH:mm")}
+            Último acesso: {moment().format("DD/MM/YYYY [às] HH:mm")}
           </p>
         </header>
 
@@ -507,6 +546,12 @@ const Dashboard = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
             <h2 className="text-xl font-semibold mb-4">Adicionar Ocorrência</h2>
+
+            {/* Exibir o nome do usuário logado */}
+            <p className="mb-2">
+              <strong>Usuário:</strong> {user.username}
+            </p>
+
             <textarea
               value={mensagemOcorrencia}
               onChange={(e) => setMensagemOcorrencia(e.target.value)}

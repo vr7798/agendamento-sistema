@@ -11,6 +11,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Token anexado no cabeçalho Authorization:", config.headers.Authorization);
+    } else {
+      console.log("Nenhum token encontrado no localStorage.");
     }
     console.log("Request Config:", config); // Log da configuração da requisição
     return config;
@@ -179,10 +182,10 @@ export const atualizarEtapaAgendamento = async (id, novaEtapa) => {
   }
 };
 
-// **Nova Função: Adicionar Ocorrência a um Agendamento**
+// Função de adicionar ocorrência
 export const adicionarOcorrencia = async (id, mensagem) => {
   try {
-    console.log("Attempting to add ocorrência to agendamento with ID:", id, "and mensagem:", mensagem); // Log da tentativa de adicionar ocorrência
+    console.log("Attempting to add ocorrência to agendamento with ID:", id, "and mensagem:", mensagem);
     const response = await api.post(`/api/agendamentos/${id}/ocorrencias`, { mensagem });
     toast.success("Ocorrência adicionada com sucesso!");
     console.log("Adicionar Ocorrencia Response:", response); // Log da resposta de adição de ocorrência

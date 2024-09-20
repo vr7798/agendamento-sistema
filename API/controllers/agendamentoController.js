@@ -207,17 +207,18 @@ exports.atualizarEtapaAgendamento = async (req, res) => {
 
 
 
-
-// Adicionar uma ocorrência a um agendamento existente
 exports.adicionarOcorrencia = async (req, res) => {
   const { id } = req.params; // ID do agendamento
-  const { mensagem } = req.body; // Mensagem da ocorrência
+  const { mensagem } = req.body; // Mensagem da ocorrência, que pode ser um objeto
 
   console.log("Dados recebidos para adicionar ocorrência:", { id, mensagem });
 
   try {
-    // Verificar se a mensagem está presente
-    if (!mensagem || mensagem.trim() === "") {
+    // Verificar se a mensagem está presente e se é um objeto ou uma string
+    const textoMensagem = typeof mensagem === 'string' ? mensagem : mensagem.mensagem;
+
+    // Verificar se a mensagem é válida e se não está vazia
+    if (!textoMensagem || typeof textoMensagem !== 'string' || textoMensagem.trim() === "") {
       console.log("Mensagem da ocorrência não fornecida");
       return res.status(400).json({ message: "A mensagem da ocorrência é obrigatória." });
     }
@@ -229,10 +230,17 @@ exports.adicionarOcorrencia = async (req, res) => {
       return res.status(404).json({ message: "Agendamento não encontrado." });
     }
 
-    // Criar uma nova ocorrência
+    // Verificar se o usuário está autenticado
+    if (!req.user || !req.user.username) {
+      console.log("Usuário não autenticado ou campo 'username' ausente:", req.user);
+      return res.status(401).json({ message: "Usuário não autenticado." });
+    }
+
+    // Criar uma nova ocorrência com o username do usuário
     const novaOcorrencia = {
-      mensagem: mensagem.trim(),
+      mensagem: textoMensagem.trim(), // Certifique-se de que é uma string e está formatada corretamente
       data: moment().tz("America/Sao_Paulo").toDate(),
+      nomeUsuario: req.user.username, // Usa 'username' ao invés de 'nome'
     };
 
     // Adicionar a ocorrência ao agendamento
