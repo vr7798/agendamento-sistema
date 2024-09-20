@@ -5,6 +5,7 @@ import {
   getAgendamentosFiltrados,
   getAgendamentosTodos,
   atualizarEtapaAgendamento,
+  adicionarOcorrencia as apiAdicionarOcorrencia, // Renomeado para evitar conflito
 } from "../api";
 import { toast } from "react-toastify";
 import moment from "moment-timezone";
@@ -22,6 +23,9 @@ const Dashboard = () => {
   });
   const [locais, setLocais] = useState([]);
   const [etapas, setEtapas] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false); // Estado para visibilidade da modal
+  const [mensagemOcorrencia, setMensagemOcorrencia] = useState(""); // Estado para a mensagem
+  const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null); // Estado para armazenar o ID do agendamento selecionado
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -230,6 +234,43 @@ const Dashboard = () => {
     }
   };
 
+  // Função para lidar com a abertura da modal de ocorrência
+  const abrirModalOcorrencia = (idAgendamento) => {
+    // Abrir a modal e armazenar o ID do agendamento atual
+    setAgendamentoSelecionado(idAgendamento);
+    setModalVisible(true);
+  };
+
+  const enviarOcorrencia = async () => {
+    if (mensagemOcorrencia.trim() === "") {
+      toast.error("Por favor, informe a mensagem.");
+      return;
+    }
+
+    try {
+      // Chamar a função API para adicionar a ocorrência
+      await apiAdicionarOcorrencia(agendamentoSelecionado, mensagemOcorrencia);
+
+      // Atualizar a lista de agendamentos para refletir a nova ocorrência
+      const agendamentos = await getAgendamentosTodos();
+      setAgendamentosGerais(agendamentos);
+      setEtapas(
+        agendamentos.map(
+          (agendamento) => agendamento.etapa || "Ainda não consultou"
+        )
+      );
+
+      toast.success("Ocorrência adicionada com sucesso!");
+      // Fechar a modal e limpar a mensagem
+      setModalVisible(false);
+      setMensagemOcorrencia("");
+      setAgendamentoSelecionado(null);
+    } catch (error) {
+      // Erro já está sendo tratado na função API
+      console.error("Erro ao adicionar ocorrência:", error);
+    }
+  };
+
   // Componente Interno para Filtros
   const FiltroAgendamentos = () => {
     const handleInputChange = (e) => {
@@ -381,6 +422,14 @@ const Dashboard = () => {
           <span className="text-white font-semibold text-xs">{etapa}</span>
         </div>
 
+        {/* Nova opção: Adicionar Ocorrência */}
+        <button
+          onClick={() => abrirModalOcorrencia(agendamento._id)}
+          className="mt-2 w-full bg-purple-200 text-purple-700 p-2 rounded-md hover:bg-purple-300 text-sm"
+        >
+          Adicionar Ocorrência
+        </button>
+
         {/* Dropdown para alterar etapa */}
         <select
           value={etapas[index]}
@@ -452,6 +501,40 @@ const Dashboard = () => {
           </div>
         </section>
       </div>
+
+      {/* Modal para Adicionar Ocorrência */}
+      {modalVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Adicionar Ocorrência</h2>
+            <textarea
+              value={mensagemOcorrencia}
+              onChange={(e) => setMensagemOcorrencia(e.target.value)}
+              placeholder="Informe a mensagem"
+              className="w-full p-2 border border-gray-300 rounded-md mb-4 resize-none"
+              rows="4"
+            ></textarea>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setModalVisible(false);
+                  setMensagemOcorrencia("");
+                  setAgendamentoSelecionado(null);
+                }}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Voltar
+              </button>
+              <button
+                onClick={enviarOcorrencia}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

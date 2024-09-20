@@ -1,5 +1,9 @@
-// models/Agendamento.js
 const mongoose = require("mongoose");
+
+const OcorrenciaSchema = new mongoose.Schema({
+  mensagem: { type: String, required: true },
+  data: { type: Date, default: Date.now },
+});
 
 const AgendamentoSchema = new mongoose.Schema({
   nome: { type: String, required: true },
@@ -14,6 +18,7 @@ const AgendamentoSchema = new mongoose.Schema({
     enum: ["Consultou", "Ainda não consultou", "Desistiu"], // Define as opções disponíveis
     default: "Ainda não consultou" // Valor padrão
   },
+  ocorrencias: [OcorrenciaSchema], // Novo campo para armazenar ocorrências
 });
 
 module.exports = mongoose.model("Agendamento", AgendamentoSchema);

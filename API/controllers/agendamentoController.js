@@ -202,3 +202,50 @@ exports.atualizarEtapaAgendamento = async (req, res) => {
     res.status(500).json({ message: "Erro ao atualizar etapa do agendamento", error });
   }
 };
+
+
+
+
+
+
+// Adicionar uma ocorrência a um agendamento existente
+exports.adicionarOcorrencia = async (req, res) => {
+  const { id } = req.params; // ID do agendamento
+  const { mensagem } = req.body; // Mensagem da ocorrência
+
+  console.log("Dados recebidos para adicionar ocorrência:", { id, mensagem });
+
+  try {
+    // Verificar se a mensagem está presente
+    if (!mensagem || mensagem.trim() === "") {
+      console.log("Mensagem da ocorrência não fornecida");
+      return res.status(400).json({ message: "A mensagem da ocorrência é obrigatória." });
+    }
+
+    // Encontrar o agendamento pelo ID
+    const agendamento = await Agendamento.findById(id);
+    if (!agendamento) {
+      console.log("Agendamento não encontrado:", id);
+      return res.status(404).json({ message: "Agendamento não encontrado." });
+    }
+
+    // Criar uma nova ocorrência
+    const novaOcorrencia = {
+      mensagem: mensagem.trim(),
+      data: moment().tz("America/Sao_Paulo").toDate(),
+    };
+
+    // Adicionar a ocorrência ao agendamento
+    agendamento.ocorrencias.push(novaOcorrencia);
+    await agendamento.save();
+
+    console.log("Ocorrência adicionada com sucesso:", novaOcorrencia);
+    res.status(201).json({
+      message: "Ocorrência adicionada com sucesso.",
+      ocorrencia: novaOcorrencia,
+    });
+  } catch (error) {
+    console.error("Erro ao adicionar ocorrência:", error);
+    res.status(500).json({ message: "Erro ao adicionar ocorrência.", error });
+  }
+};

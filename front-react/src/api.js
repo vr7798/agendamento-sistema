@@ -149,8 +149,6 @@ export const getAgendamentosFiltrados = async (dataInicio, dataFim, local, nome)
   }
 };
 
-
-
 // Função para buscar todos os agendamentos
 export const getAgendamentosTodos = async () => {
   try {
@@ -164,6 +162,7 @@ export const getAgendamentosTodos = async () => {
     throw error;
   }
 };
+
 // Função para atualizar a etapa de um agendamento
 export const atualizarEtapaAgendamento = async (id, novaEtapa) => {
   try {
@@ -175,6 +174,22 @@ export const atualizarEtapaAgendamento = async (id, novaEtapa) => {
   } catch (error) {
     const errorMessage = error.response?.data.message || "Erro ao atualizar etapa do agendamento. Tente novamente.";
     console.error("Update Etapa Error:", error); // Log de erro de atualização de etapa
+    toast.error(errorMessage);
+    throw error;
+  }
+};
+
+// **Nova Função: Adicionar Ocorrência a um Agendamento**
+export const adicionarOcorrencia = async (id, mensagem) => {
+  try {
+    console.log("Attempting to add ocorrência to agendamento with ID:", id, "and mensagem:", mensagem); // Log da tentativa de adicionar ocorrência
+    const response = await api.post(`/api/agendamentos/${id}/ocorrencias`, { mensagem });
+    toast.success("Ocorrência adicionada com sucesso!");
+    console.log("Adicionar Ocorrencia Response:", response); // Log da resposta de adição de ocorrência
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data.message || "Erro ao adicionar ocorrência. Tente novamente.";
+    console.error("Adicionar Ocorrencia Error:", error); // Log de erro ao adicionar ocorrência
     toast.error(errorMessage);
     throw error;
   }
