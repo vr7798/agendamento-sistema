@@ -26,10 +26,12 @@ const Navbar = () => {
         setUserRole(decodedToken.role);
       } catch (error) {
         console.error("Token inválido:", error);
-        handleLogout();
+        localStorage.removeItem("token");
+        toast.success("Logout realizado com sucesso!");
+        navigate("/login");
       }
     }
-  }, []);
+  }, [navigate]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
