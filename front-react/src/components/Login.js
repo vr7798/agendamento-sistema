@@ -15,7 +15,7 @@ const Login = () => {
       const response = await login(username, password);
       const { token } = response.data;
       localStorage.setItem("token", token); // Certifique-se de que o token está sendo salvo corretamente
-      toast.success("Login realizado com sucesso!");
+
       navigate("/dashboard"); // Redireciona para o Dashboard após o login bem-sucedido
     } catch (err) {
       toast.error("Credenciais inválidas. Tente novamente.");
@@ -49,7 +49,8 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition-colors">
+            className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition-colors"
+          >
             Login
           </button>
         </form>

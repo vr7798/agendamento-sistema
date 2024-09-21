@@ -11,7 +11,10 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("Token anexado no cabeçalho Authorization:", config.headers.Authorization);
+      console.log(
+        "Token anexado no cabeçalho Authorization:",
+        config.headers.Authorization
+      );
     } else {
       console.log("Nenhum token encontrado no localStorage.");
     }
@@ -20,6 +23,32 @@ api.interceptors.request.use(
   },
   (error) => {
     console.error("Request Error:", error); // Log de erro de requisição
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor de resposta para tratar erros
+api.interceptors.response.use(
+  (response) => {
+    // Retorna a resposta normalmente se for bem-sucedida
+    return response;
+  },
+  (error) => {
+    console.error("Response Error:", error); // Log de erro de resposta
+
+    // Verifica se o erro é devido a token expirado ou inválido
+    if (error.response && error.response.status === 404) {
+      // Remove o token do localStorage
+      localStorage.removeItem("token");
+      console.log(
+        "Token expirado ou inválido. Redirecionando para a página de login."
+      );
+
+      // Redireciona para a rota "/"
+      window.location.href = "/";
+    }
+
+    // Rejeita a promessa com o erro
     return Promise.reject(error);
   }
 );
@@ -33,7 +62,8 @@ export const login = async (username, password) => {
     console.log("Login Response:", response); // Log da resposta do login
     return response;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao tentar login. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message || "Erro ao tentar login. Tente novamente.";
     console.error("Login Error:", error); // Log de erro de login
     toast.error(errorMessage);
     throw error;
@@ -49,7 +79,9 @@ export const register = async (userData) => {
     console.log("Registration Response:", response); // Log da resposta de registro
     return response;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao registrar usuário. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message ||
+      "Erro ao registrar usuário. Tente novamente.";
     console.error("Registration Error:", error); // Log de erro de registro
     toast.error(errorMessage);
     throw error;
@@ -65,7 +97,9 @@ export const criarAgendamento = async (agendamentoData) => {
     console.log("Create Agendamento Response:", response); // Log da resposta de criação de agendamento
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao criar agendamento. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message ||
+      "Erro ao criar agendamento. Tente novamente.";
     console.error("Create Agendamento Error:", error); // Log de erro de criação de agendamento
     toast.error(errorMessage);
     throw error;
@@ -75,13 +109,20 @@ export const criarAgendamento = async (agendamentoData) => {
 // Função de atualização de agendamento
 export const atualizarAgendamento = async (id, agendamentoData) => {
   try {
-    console.log("Attempting to update agendamento with ID:", id, "and data:", agendamentoData); // Log dos dados de atualização de agendamento
+    console.log(
+      "Attempting to update agendamento with ID:",
+      id,
+      "and data:",
+      agendamentoData
+    ); // Log dos dados de atualização de agendamento
     const response = await api.put(`/api/agendamentos/${id}`, agendamentoData);
     toast.success("Agendamento atualizado com sucesso!");
     console.log("Update Agendamento Response:", response); // Log da resposta de atualização de agendamento
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao atualizar agendamento. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message ||
+      "Erro ao atualizar agendamento. Tente novamente.";
     console.error("Update Agendamento Error:", error); // Log de erro de atualização de agendamento
     toast.error(errorMessage);
     throw error;
@@ -97,7 +138,9 @@ export const atualizarPerfil = async (userData) => {
     console.log("Update Profile Response:", response); // Log da resposta de atualização de perfil
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao atualizar perfil. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message ||
+      "Erro ao atualizar perfil. Tente novamente.";
     console.error("Update Profile Error:", error); // Log de erro de atualização de perfil
     toast.error(errorMessage);
     throw error;
@@ -112,7 +155,8 @@ export const getPerfil = async () => {
     console.log("Get Profile Response:", response); // Log da resposta de obtenção de perfil
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao buscar perfil. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message || "Erro ao buscar perfil. Tente novamente.";
     console.error("Get Profile Error:", error); // Log de erro ao buscar perfil
     toast.error(errorMessage);
     throw error;
@@ -120,7 +164,12 @@ export const getPerfil = async () => {
 };
 
 // Função para buscar agendamentos filtrados
-export const getAgendamentosFiltrados = async (dataInicio, dataFim, local, nome) => {
+export const getAgendamentosFiltrados = async (
+  dataInicio,
+  dataFim,
+  local,
+  nome
+) => {
   try {
     const params = {};
 
@@ -166,18 +215,32 @@ export const getAgendamentosTodos = async () => {
   }
 };
 
-// Função para atualizar a etapa de um agendamento
+// Função de atualização da etapa (front-end)
 export const atualizarEtapaAgendamento = async (id, novaEtapa) => {
   try {
-    console.log("Attempting to update etapa of agendamento with ID:", id, "and new etapa:", novaEtapa); // Log da atualização de etapa
-    const response = await api.put(`/api/agendamentos/${id}/etapa`, { novaEtapa });
-    toast.success("Etapa do agendamento atualizada com sucesso!");
-    console.log("Update Etapa Response:", response); // Log da resposta de atualização de etapa
+    console.log(
+      "Attempting to update etapa of agendamento with ID:",
+      id,
+      "and new etapa:",
+      novaEtapa
+    );
+
+    const response = await api.put(`/api/agendamentos/${id}/etapa`, {
+      novaEtapa,
+    });
+
+    toast.success("Etapa do agendamento atualizada com sucesso!"); // Sucesso
+
+    console.log("Update Etapa Response:", response);
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao atualizar etapa do agendamento. Tente novamente.";
-    console.error("Update Etapa Error:", error); // Log de erro de atualização de etapa
-    toast.error(errorMessage);
+    const errorMessage =
+      error.response?.data.message ||
+      "Erro ao atualizar etapa do agendamento. Tente novamente.";
+
+    toast.error(errorMessage); // Erro
+    console.error("Update Etapa Error:", error);
+
     throw error;
   }
 };
@@ -185,13 +248,22 @@ export const atualizarEtapaAgendamento = async (id, novaEtapa) => {
 // Função de adicionar ocorrência
 export const adicionarOcorrencia = async (id, mensagem) => {
   try {
-    console.log("Attempting to add ocorrência to agendamento with ID:", id, "and mensagem:", mensagem);
-    const response = await api.post(`/api/agendamentos/${id}/ocorrencias`, { mensagem });
+    console.log(
+      "Attempting to add ocorrência to agendamento with ID:",
+      id,
+      "and mensagem:",
+      mensagem
+    );
+    const response = await api.post(`/api/agendamentos/${id}/ocorrencias`, {
+      mensagem,
+    });
     toast.success("Ocorrência adicionada com sucesso!");
     console.log("Adicionar Ocorrencia Response:", response); // Log da resposta de adição de ocorrência
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data.message || "Erro ao adicionar ocorrência. Tente novamente.";
+    const errorMessage =
+      error.response?.data.message ||
+      "Erro ao adicionar ocorrência. Tente novamente.";
     console.error("Adicionar Ocorrencia Error:", error); // Log de erro ao adicionar ocorrência
     toast.error(errorMessage);
     throw error;

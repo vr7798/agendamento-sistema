@@ -1,8 +1,7 @@
-// Navbar.js
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import {jwtDecode }from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import {
   MenuIcon,
   XIcon,
@@ -17,12 +16,18 @@ const Navbar = () => {
   const [userRole, setUserRole] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decodedToken = jwtDecode(token);
-      setUserRole(decodedToken.role);
+      try {
+        const decodedToken = jwtDecode(token);
+        setUserRole(decodedToken.role);
+      } catch (error) {
+        console.error("Token inválido:", error);
+        handleLogout();
+      }
     }
   }, []);
 
@@ -36,96 +41,117 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const menuItems = [
+    {
+      to: "/dashboard",
+      label: "Painel",
+      icon: <HomeIcon className="w-5 h-5 mr-2" />,
+    },
+    {
+      to: "/adicionar-agendamento",
+      label: "Adicionar Agendamento",
+      icon: <CalendarIcon className="w-5 h-5 mr-2" />,
+    },
+    {
+      to: "/admin-panel",
+      label: "Painel Administrativo",
+      icon: <CogIcon className="w-5 h-5 mr-2" />,
+      roles: ["admin"],
+    },
+    {
+      to: "/perfil",
+      label: "Meu Perfil",
+      icon: <UserIcon className="w-5 h-5 mr-2" />,
+    },
+  ];
+
   return (
-    <nav className="bg-gray-900 fixed w-full z-50 top-0 left-0 shadow-lg">
+    <nav className="bg-gray-800 fixed w-full z-50 top-0 left-0 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-white text-2xl font-extrabold tracking-tight">
-              AgendaProMax™
-            </h1>
-            <div className="hidden md:flex space-x-6">
-              <Link
-                to="/dashboard"
-                className="text-gray-300 hover:bg-gray-800 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition duration-150 flex items-center"
-              >
-                <HomeIcon className="w-5 h-5 mr-2" />
-                Painel
-              </Link>
-              <Link
-                to="/adicionar-agendamento"
-                className="text-gray-300 hover:bg-gray-800 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition duration-150 flex items-center"
-              >
-                <CalendarIcon className="w-5 h-5 mr-2" />
-                Adicionar Agendamento
-              </Link>
-              {userRole === "admin" && (
-                <Link
-                  to="/admin-panel"
-                  className="text-gray-300 hover:bg-gray-800 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition duration-150 flex items-center"
-                >
-                  <CogIcon className="w-5 h-5 mr-2" />
-                  Painel Administrativo
-                </Link>
-              )}
-              <Link
-                to="/perfil"
-                className="text-gray-300 hover:bg-gray-800 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition duration-150 flex items-center"
-              >
-                <UserIcon className="w-5 h-5 mr-2" />
-                Meu Perfil
-              </Link>
+          {/* Logo e Links Principais */}
+          <div className="flex items-center">
+            <Link
+              to="/"
+              className="text-white text-2xl font-extrabold tracking-tight"
+            >
+              AgendaVisão
+            </Link>
+            <div className="hidden md:flex ml-10 space-x-4">
+              {menuItems.map((item) => {
+                if (item.roles && !item.roles.includes(userRole)) return null;
+                const isActive = location.pathname === item.to;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition 
+                      ${
+                        isActive
+                          ? "bg-gray-900 text-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                      }`}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                );
+              })}
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-150 font-medium"
+                className="ml-4 bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition"
               >
                 Sair
               </button>
             </div>
           </div>
+          {/* Botão de Menu Mobile */}
           <div className="md:hidden flex items-center">
             <button
               onClick={toggleMenu}
               className="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              aria-label="Menu"
             >
-              {isOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+              {isOpen ? (
+                <XIcon className="h-6 w-6" />
+              ) : (
+                <MenuIcon className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
       </div>
 
+      {/* Menu Mobile */}
       {isOpen && (
-        <div className="md:hidden bg-gray-900 transition-transform ease-in-out duration-300">
+        <div className="md:hidden bg-gray-800 transition ease-out duration-300">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <Link
-              to="/dashboard"
-              className="text-gray-300 hover:bg-gray-800 hover:text-white block px-3 py-2 rounded-lg text-base font-medium"
-            >
-              Painel
-            </Link>
-            <Link
-              to="/adicionar-agendamento"
-              className="text-gray-300 hover:bg-gray-800 hover:text-white block px-3 py-2 rounded-lg text-base font-medium"
-            >
-              Adicionar Agendamento
-            </Link>
-            {userRole === "admin" && (
-              <Link
-                to="/admin-panel"
-                className="text-gray-300 hover:bg-gray-800 hover:text-white block px-3 py-2 rounded-lg text-base font-medium"
-              >
-                Painel Administrativo
-              </Link>
-            )}
-            <Link
-              to="/perfil"
-              className="text-gray-300 hover:bg-gray-800 hover:text-white block px-3 py-2 rounded-lg text-base font-medium"
-            >
-              Meu Perfil
-            </Link>
+            {menuItems.map((item) => {
+              if (item.roles && !item.roles.includes(userRole)) return null;
+              const isActive = location.pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition 
+                    ${
+                      isActive
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                    }`}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              );
+            })}
             <button
-              onClick={handleLogout}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors mt-2"
+              onClick={() => {
+                handleLogout();
+                setIsOpen(false);
+              }}
+              className="w-full flex items-center justify-center bg-red-600 text-white py-2 px-4 rounded-md text-base font-medium hover:bg-red-700 transition"
             >
               Sair
             </button>

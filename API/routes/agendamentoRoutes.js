@@ -10,7 +10,7 @@ router.post("/", proteger, agendamentoController.criarAgendamento);
 router.get("/", proteger, agendamentoController.listarAgendamentos);
 
 // Rota para listar todos os agendamentos (sem proteção)
-router.get('/todos', agendamentoController.listarTodosAgendamentos);
+router.get('/todos',proteger, agendamentoController.listarTodosAgendamentos);
 
 // Rota para listar agendamentos filtrados
 router.get('/filtrados', proteger, agendamentoController.listarAgendamentosFiltrados);
