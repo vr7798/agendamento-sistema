@@ -1,6 +1,6 @@
 {
-  "short_name": "AgendaProMax",
-  "name": "AgendaProMax™ - Sistema de Agendamento",
+  "short_name": "AgendaVisão",
+  "name": "AgendaVisão - Sistema de Agendamento",
   "icons": [
     {
       "src": "favicon.ico",
@@ -22,7 +22,7 @@
   "display": "standalone",
   "theme_color": "#0D47A1",
   "background_color": "#ffffff",
-  "description": "Gerencie seus agendamentos de forma fácil e rápida com o AgendaProMax™.",
+  "description": "Tenha controle total de seus agendamentos com o AgendaVisão.",
   "orientation": "portrait",
   "scope": "/",
   "lang": "pt-BR"
