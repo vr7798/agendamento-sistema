@@ -14,6 +14,24 @@ import moment from "moment-timezone";
 import { FaWhatsapp, FaPhone, FaEllipsisH } from "react-icons/fa";
 import PropTypes from "prop-types";
 
+// Função para obter a cor da etapa
+const getEtapaColor = (etapa) => {
+  switch (etapa) {
+    case "Consultou - Comprou":
+      return "bg-green-400";
+    case "Consultou - Comprou em Outra Ótica":
+      return "bg-blue-400";
+    case "Consultou - Não Comprou":
+      return "bg-yellow-400";
+    case "Não Consultou ainda":
+      return "bg-gray-400";
+    case "Desistiu":
+      return "bg-red-400";
+    default:
+      return "bg-gray-400";
+  }
+};
+
 // Componente Modal para Adicionar Ocorrências
 const ModalOcorrencia = ({
   isVisible,
@@ -197,24 +215,6 @@ FiltroAgendamentos.propTypes = {
   limparFiltro: PropTypes.func.isRequired,
 };
 
-// Função para obter a cor da etapa (modificada para as novas etapas)
-const getEtapaColor = (etapa) => {
-  switch (etapa) {
-    case "Consultou - Comprou":
-      return "bg-green-400";
-    case "Consultou - Comprou em Outra Ótica":
-      return "bg-blue-400";
-    case "Consultou - Não Comprou":
-      return "bg-yellow-400";
-    case "Não Consultou ainda":
-      return "bg-gray-400";
-    case "Desistiu":
-      return "bg-red-400";
-    default:
-      return "bg-gray-400";
-  }
-};
-
 // Componente Card de Agendamento (modificado)
 const CardAgendamento = ({
   agendamento,
@@ -223,10 +223,38 @@ const CardAgendamento = ({
   alterarEtapa,
   copiarMensagem,
   abrirModalOcorrencia,
-  getEtapaColor,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // Estado para controlar o dropdown de ocorrências
   const [etapaOpen, setEtapaOpen] = useState(false); // Estado para controlar o dropdown de alterar etapa
+  const [mensagemSelectOpen, setMensagemSelectOpen] = useState(false); // Estado para controlar o dropdown de mensagem
+  const [tipoMensagem, setTipoMensagem] = useState("default"); // Estado para armazenar o tipo de mensagem selecionada
+
+  // Função para gerar a mensagem com base no tipo selecionado
+  const gerarMensagem = () => {
+    const nome = agendamento.nome;
+    const horario = agendamento.horario;
+    const dia = agendamento.dia;
+    const local = agendamento.local;
+
+    if (tipoMensagem === "lembrandoAgendamento") {
+      return `Olá, *${nome}!* Este é um lembrete do seu agendamento no dia *${moment(
+        dia
+      )
+        .tz("America/Sao_Paulo")
+        .format(
+          "DD/MM/YYYY"
+        )}* às *${horario}* na clínica *${local}*. Se precisar alterar ou cancelar, por favor, nos avise. Agradecemos!`;
+    }
+
+    // Mensagem padrão (confirmação de agendamento)
+    return `_*${nome}*_, seu agendamento foi confirmado para o dia _*${moment(
+      dia
+    )
+      .tz("America/Sao_Paulo")
+      .format(
+        "DD/MM/YYYY"
+      )}*_ às _*${horario}*_ na clínica *${local}*_. Qualquer dúvida, estamos à disposição!`;
+  };
 
   return (
     <li className="p-6 border border-gray-200 rounded-lg bg-white shadow-md hover:shadow-xl transition-shadow mb-6">
@@ -274,7 +302,6 @@ const CardAgendamento = ({
 
       {/* Botões alinhados lado a lado */}
       <div className="flex flex-col sm:flex-row mt-6 space-y-2 sm:space-y-0 sm:space-x-4">
-        {/* Botão Alterar Etapa */}
         {/* Botão Alterar Etapa */}
         <div className="relative w-full sm:w-64">
           {" "}
@@ -344,16 +371,47 @@ const CardAgendamento = ({
           )}
         </div>
 
+        {/* Botão Escolher Mensagem */}
+        <div className="relative w-full sm:w-64">
+          <button
+            onClick={() => setMensagemSelectOpen(!mensagemSelectOpen)}
+            className="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition focus:outline-none focus:ring-2 focus:ring-gray-400 flex items-center justify-center"
+          >
+            Escolher Mensagem
+          </button>
+          {mensagemSelectOpen && (
+            <div className="absolute left-0 mt-2 w-full sm:w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+              <select
+                onChange={(e) => {
+                  setTipoMensagem(e.target.value);
+                  setMensagemSelectOpen(false);
+                }}
+                defaultValue="default"
+                className="w-full px-4 py-2 text-sm text-gray-700 bg-white border-none focus:outline-none"
+              >
+                <option value="default" disabled>
+                  Selecione uma mensagem
+                </option>
+                <option value="confirmacaoAgendamento">
+                  Mensagem de Confirmação de Agendamento
+                </option>
+                <option value="lembrandoAgendamento">
+                  Mensagem de Lembrete de Agendamento
+                </option>
+              </select>
+            </div>
+          )}
+        </div>
+
         {/* Botão Copiar Mensagem (WhatsApp) */}
         <button
-          onClick={() =>
-            copiarMensagem(
-              agendamento.nome,
-              agendamento.horario,
-              agendamento.dia,
-              agendamento.local
-            )
-          }
+          onClick={() => {
+            if (tipoMensagem === "default") {
+              toast.error("Por favor, escolha um tipo de mensagem primeiro.");
+              return;
+            }
+            copiarMensagem(gerarMensagem());
+          }}
           className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
           title="Copiar mensagem para WhatsApp"
         >
@@ -408,9 +466,9 @@ CardAgendamento.propTypes = {
   alterarEtapa: PropTypes.func.isRequired,
   copiarMensagem: PropTypes.func.isRequired,
   abrirModalOcorrencia: PropTypes.func.isRequired,
-  getEtapaColor: PropTypes.func.isRequired,
 };
 
+// Componente Dashboard
 const Dashboard = () => {
   const [user, setUser] = useState({});
   const [agendamentosGerais, setAgendamentosGerais] = useState([]);
@@ -527,14 +585,11 @@ const Dashboard = () => {
   }, []);
 
   // Função para copiar mensagem para o WhatsApp
-  const copiarMensagem = useCallback((nome, horario, dia, local) => {
-    const mensagem = `_*${nome}*_, seu agendamento foi confirmado para o dia _*${moment(
-      dia
-    )
-      .tz("America/Sao_Paulo")
-      .format(
-        "DD/MM/YYYY"
-      )}*_ às _*${horario}*_ na clínica *${local}*_. Qualquer dúvida, estamos à disposição!`;
+  const copiarMensagem = useCallback((mensagem) => {
+    if (!mensagem) {
+      toast.error("Mensagem inválida.");
+      return;
+    }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
@@ -630,7 +685,9 @@ const Dashboard = () => {
         novasEtapas[index] = novaEtapa;
         return novasEtapas;
       });
+      toast.success(`Etapa alterada para "${novaEtapa}".`);
     } catch (error) {
+      toast.error("Erro ao alterar etapa.");
       console.error("Erro ao alterar etapa:", error);
     }
   }, []);
@@ -666,7 +723,9 @@ const Dashboard = () => {
       setModalVisible(false);
       setMensagemOcorrencia("");
       setAgendamentoSelecionado(null);
+      toast.success("Ocorrência adicionada com sucesso!");
     } catch (error) {
+      toast.error("Erro ao adicionar ocorrência.");
       console.error("Erro ao adicionar ocorrência:", error);
     }
   }, [agendamentoSelecionado, mensagemOcorrencia, user.username]);
@@ -732,7 +791,6 @@ const Dashboard = () => {
                   alterarEtapa={alterarEtapa}
                   copiarMensagem={copiarMensagem}
                   abrirModalOcorrencia={abrirModalOcorrencia}
-                  getEtapaColor={getEtapaColor}
                 />
               ))}
             </ul>
