@@ -75,18 +75,24 @@ exports.atualizarAgendamento = async (req, res) => {
 // Listar agendamentos filtrados
 exports.listarAgendamentosFiltrados = async (req, res) => {
   try {
-    const { dataInicio, dataFim, local, nome } = req.query;
+    const { dataInicio, dataFim, local, nome, etapa } = req.query;
     const filtro = {};
 
-    console.log("Filtros recebidos:", { dataInicio, dataFim, local, nome });
+    console.log("Filtros recebidos:", { dataInicio, dataFim, local, nome, etapa });
 
     // Ajustar o fuso horário para o horário local (UTC-3, Brasil)
     const timezone = "America/Sao_Paulo";
 
     // Filtrar por intervalo de datas
     if (dataInicio && dataFim) {
-      const inicio = moment.tz(dataInicio, "YYYY-MM-DD", timezone).startOf("day").toDate();
-      const fim = moment.tz(dataFim, "YYYY-MM-DD", timezone).endOf("day").toDate();
+      const inicio = moment
+        .tz(dataInicio, "YYYY-MM-DD", timezone)
+        .startOf("day")
+        .toDate();
+      const fim = moment
+        .tz(dataFim, "YYYY-MM-DD", timezone)
+        .endOf("day")
+        .toDate();
       filtro.dia = { $gte: inicio, $lte: fim };
     }
 
@@ -98,8 +104,19 @@ exports.listarAgendamentosFiltrados = async (req, res) => {
     // Filtrar por nome, se fornecido
     if (nome) {
       // Adicionar espaços extras para melhorar a correspondência
-      const regex = new RegExp(nome.trim().replace(/\s+/g, ' ').replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+      const regex = new RegExp(
+        nome
+          .trim()
+          .replace(/\s+/g, " ")
+          .replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"),
+        "i"
+      );
       filtro.nome = { $regex: regex };
+    }
+
+    // Filtrar por etapa, se fornecido
+    if (etapa) {
+      filtro.etapa = etapa;
     }
 
     console.log("Objeto de filtro aplicado:", filtro);
@@ -113,7 +130,6 @@ exports.listarAgendamentosFiltrados = async (req, res) => {
     res.status(500).json({ message: "Erro ao listar agendamentos filtrados", error });
   }
 };
-
 
 
 

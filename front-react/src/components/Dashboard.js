@@ -109,7 +109,7 @@ const FiltroAgendamentos = ({
       <h2 className="text-xl font-semibold mb-4 text-gray-800">
         Filtros de Agendamentos
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Campo Período */}
         <div>
           <label className="block text-gray-700 mb-1">Período</label>
@@ -171,6 +171,26 @@ const FiltroAgendamentos = ({
                 {local}
               </option>
             ))}
+          </select>
+        </div>
+
+        {/* Campo Etapa */}
+        <div>
+          <label className="block text-gray-700 mb-1">Etapa</label>
+          <select
+            name="etapa"
+            value={filtros.etapa}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as etapas</option>
+            <option value="Consultou - Comprou">Consultou - Comprou</option>
+            <option value="Consultou - Comprou em Outra Ótica">
+              Consultou - Comprou em Outra Ótica
+            </option>
+            <option value="Consultou - Não Comprou">Consultou - Não Comprou</option>
+            <option value="Não Consultou ainda">Não Consultou ainda</option>
+            <option value="Desistiu">Desistiu</option>
           </select>
         </div>
 
@@ -478,6 +498,7 @@ const Dashboard = () => {
     local: "",
     nome: "",
     periodo: "",
+    etapa: "", // Nova propriedade adicionada
   });
   const [locais, setLocais] = useState([]);
   const [etapas, setEtapas] = useState([]);
@@ -620,8 +641,8 @@ const Dashboard = () => {
   // Função para filtrar agendamentos
   const filtrarAgendamentos = useCallback(async () => {
     try {
-      const { dataInicio, dataFim, local, nome } = filtros;
-      if (!dataInicio && !dataFim && !local && !nome) {
+      const { dataInicio, dataFim, local, nome, etapa } = filtros;
+      if (!dataInicio && !dataFim && !local && !nome && !etapa) {
         toast.error("Por favor, aplique pelo menos um filtro antes de buscar.");
         return;
       }
@@ -631,7 +652,8 @@ const Dashboard = () => {
         dataInicio || "",
         dataFim || "",
         local || "",
-        nome || ""
+        nome || "",
+        etapa || "" // Envia o novo parâmetro 'etapa'
       );
       setAgendamentosGerais(agendamentos);
       setEtapas(
@@ -656,6 +678,7 @@ const Dashboard = () => {
       local: "",
       nome: "",
       periodo: "",
+      etapa: "", // Limpa o filtro 'etapa'
     });
 
     try {

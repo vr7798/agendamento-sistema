@@ -163,12 +163,14 @@ export const getPerfil = async () => {
   }
 };
 
+
 // Função para buscar agendamentos filtrados
 export const getAgendamentosFiltrados = async (
   dataInicio,
   dataFim,
   local,
-  nome
+  nome,
+  etapa // Novo parâmetro
 ) => {
   try {
     const params = {};
@@ -189,6 +191,11 @@ export const getAgendamentosFiltrados = async (
       params.nome = nome;
     }
 
+    // Adiciona a etapa se estiver definida
+    if (etapa) {
+      params.etapa = etapa;
+    }
+
     console.log("Attempting to get filtered agendamentos with params:", params); // Log dos parâmetros de filtro
 
     const response = await api.get("/api/agendamentos/filtrados", { params });
@@ -200,6 +207,7 @@ export const getAgendamentosFiltrados = async (
     throw error;
   }
 };
+
 
 // Função para buscar todos os agendamentos
 export const getAgendamentosTodos = async () => {
